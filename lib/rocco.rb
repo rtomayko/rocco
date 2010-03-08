@@ -77,7 +77,8 @@ protected
     # Combine all code blocks into a single big stream and run through
     # pygments. We `popen` a pygmentize process and then fork off a
     # writer process.
-    open("|pygmentize -l ruby -f html", 'rw') do |fd|
+    code_html = nil
+    open("|pygmentize -l ruby -f html", 'r+') do |fd|
       fork {
         fd.close_read
         fd.write code_blocks.join("\n# DIVIDER\n")
@@ -86,9 +87,17 @@ protected
       }
 
       fd.close_write
-      code_html = fd.read.split(/\n*<span class="c1"># DIVIDER<\/span>\n*/m)
+      code_html = fd.read
       fd.close_read
     end
+
+    # Do some post-processing on the pygments output to remove
+    # partial `<pre>` blocks. We'll add these back when we build to main
+    # document.
+    code_html = code_html.
+      split(/\n*<span class="c1"># DIVIDER<\/span>\n*/m).
+      map { |code| code.sub(/\n?<div class="highlight"><pre>/m, '') }.
+      map { |code| code.sub(/\n?<\/pre><\/div>\n/m, '') }
 
     # Combine the docs and code lists into the same sections style list we
     # started with.
@@ -99,11 +108,15 @@ public
   def to_html
     buf = []
     buf << "<!DOCTYPE html>"
-    buf << "<table>"
+    buf << "<head>"
+    buf << "<style>table td{vertical-align:top;padding:10px;}\npre{background:#fff;overflow-x:auto}</style>"
+    buf << "<link rel=stylesheet href='http://github.com/richleland/pygments-css/raw/master/default.css'>"
+    buf << "</head>"
+    buf << "<table width=100%>"
     @sections.each do |docs,code|
       buf << "<tr>"
-      buf << "<td>#{docs}</td>"
-      buf << "<td>#{code}</td>"
+      buf << "<td width=50%>#{docs}</td>"
+      buf << "<td width=50%><div class='highlight codehilite'><pre>#{code}</pre></div></td>"
       buf << "</tr>"
     end
     buf << "</table>"
