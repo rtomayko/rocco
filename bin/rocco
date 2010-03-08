@@ -1,5 +1,26 @@
 #!/usr/bin/env ruby
-require 'rocco'
+libdir = File.expand_path('../../lib', __FILE__).sub(/^#{Dir.pwd}\//, '')
+
+begin
+  require 'rdiscount'
+  require 'rocco'
+rescue LoadError
+  case $!.to_s
+  when /rdiscount/
+    if !defined?(Gem)
+      warn "warn: #$!. trying again with rubygems"
+      require 'rubygems'
+      retry
+    end
+  when /rocco/
+    if !$:.include?(libdir)
+      warn "warn: #$!. trying again with #{libdir} on load path"
+      $:.unshift(libdir)
+      retry
+    end
+  end
+  raise
+end
 
 rocco =
   Rocco.new(ARGV[0]) do
