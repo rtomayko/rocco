@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+require 'rocco'
+
+rocco =
+  Rocco.new(ARGV[0]) do
+    if $stdin.tty?
+      File.read(ARGV[0])
+    else
+      $stdin.read
+    end
+  end
+
+$stdout.write(rocco.to_html)
