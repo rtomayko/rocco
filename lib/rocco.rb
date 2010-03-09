@@ -114,10 +114,10 @@ class Rocco
 
     # Combine all docs blocks into a single big markdown document and run
     # through RDiscount. Then split it back out into separate sections.
-    markdown = docs_blocks.join("\n##### DIVIDER\n")
+    markdown = docs_blocks.join("\n\n##### DIVIDER\n\n")
     docs_html = Markdown.new(markdown, :smart).
       to_html.
-      split("\n<h5>DIVIDER</h5>\n")
+      split(/\n*<h5>DIVIDER<\/h5>\n*/m)
 
     # Combine all code blocks into a single big stream and run through
     # pygments. We `popen` a pygmentize process and then fork off a
@@ -126,7 +126,7 @@ class Rocco
     open("|pygmentize -l ruby -f html", 'r+') do |fd|
       fork {
         fd.close_read
-        fd.write code_blocks.join("\n# DIVIDER\n")
+        fd.write code_blocks.join("\n\n# DIVIDER\n\n")
         fd.close_write
         exit!
       }
@@ -140,7 +140,7 @@ class Rocco
     # partial `<pre>` blocks. We'll add these back when we build to main
     # document.
     code_html = code_html.
-      split(/\n?<span class="c1"># DIVIDER<\/span>\n?/m).
+      split(/\n*<span class="c1"># DIVIDER<\/span>\n*/m).
       map { |code| code.sub(/\n?<div class="highlight"><pre>/m, '') }.
       map { |code| code.sub(/\n?<\/pre><\/div>\n/m, '') }
 
