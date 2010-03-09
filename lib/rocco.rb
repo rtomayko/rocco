@@ -142,15 +142,17 @@ class Rocco
     # then fork off a child process to write the input.
     code_html = nil
     open("|pygmentize -l ruby -f html", 'r+') do |fd|
-      fork {
-        fd.close_read
-        fd.write code_blocks.join("\n\n# DIVIDER\n\n")
-        fd.close_write
-        exit!
-      }
+      pid =
+        fork {
+          fd.close_read
+          fd.write code_blocks.join("\n\n# DIVIDER\n\n")
+          fd.close_write
+          exit!
+        }
       fd.close_write
       code_html = fd.read
       fd.close_read
+      Process.wait(pid)
     end
 
     # Do some post-processing on the pygments output to split things back
