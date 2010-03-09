@@ -43,11 +43,12 @@ rescue LoadError => boom
 end
 
 # We use [{{ mustache }}](http://defunkt.github.com/mustache/) for
-# templating.
+# HTML templating.
 require 'mustache'
 
 # Code is run through [Pygments](http://pygments.org/) for syntax
-# highlighting. Fail fast if we can't find the `pygmentize` program.
+# highlighting. Fail fast right here if we can't find the `pygmentize`
+# program on PATH.
 if ! ENV['PATH'].split(':').any? { |dir| File.exist?("#{dir}/pygmentize") }
   fail "Pygments is required for syntax highlighting"
 end
@@ -69,8 +70,7 @@ class Rocco
       else
         File.read(filename)
       end
-    # Parsing and highlighting
-    @sections = highlight(parse(@data))
+    @sections = highlight(split(parse(@data)))
   end
 
   # The filename as given to `Rocco.new`.
@@ -90,7 +90,9 @@ class Rocco
 
   #### Internal Parsing and Highlighting
 
-  # Parse the raw file data into a list of two-tuples.
+  # Parse the raw file data into a list of two-tuples. Each tuple has the
+  # form `[docs, code]` where both elements are arrays containing the
+  # raw lines parsed from the input file.
   def parse(data)
     sections = []
     docs, code = [], []
@@ -110,26 +112,34 @@ class Rocco
     sections
   end
 
-  # Take the raw section data and apply markdown formatting and syntax
-  # highlighting.
-  def highlight(sections)
-    # Start by splitting the docs and codes blocks into two separate lists.
+  # Take the list of paired *sections* two-tuples and split into two
+  # separate lists: one holding the comments with leaders removed and
+  # one with the code blocks.
+  def split(sections)
     docs_blocks, code_blocks = [], []
     sections.each do |docs,code|
       docs_blocks << docs.map { |line| line.sub(/^\s*#\s?/, '') }.join("\n")
       code_blocks << code.join("\n")
     end
+    [docs_blocks, code_blocks]
+  end
 
-    # Combine all docs blocks into a single big markdown document and run
-    # through RDiscount. Then split it back out into separate sections.
+  # Take the result of `split` and apply Markdown formatting to comments and
+  # syntax highlighting to source code.
+  def highlight(blocks)
+    docs_blocks, code_blocks = blocks
+
+    # Combine all docs blocks into a single big markdown document with section
+    # dividers and run through the Markdown processor. Then split it back out
+    # into separate sections.
     markdown = docs_blocks.join("\n\n##### DIVIDER\n\n")
     docs_html = Markdown.new(markdown, :smart).
       to_html.
       split(/\n*<h5>DIVIDER<\/h5>\n*/m)
 
     # Combine all code blocks into a single big stream and run through
-    # pygments. We `popen` a pygmentize process and then fork off a
-    # writer process.
+    # Pygments. We `popen` a read/write pygmentize process in the parent and
+    # then fork off a child process to write the input.
     code_html = nil
     open("|pygmentize -l ruby -f html", 'r+') do |fd|
       fork {
@@ -138,22 +148,19 @@ class Rocco
         fd.close_write
         exit!
       }
-
       fd.close_write
       code_html = fd.read
       fd.close_read
     end
 
-    # Do some post-processing on the pygments output to remove
-    # partial `<pre>` blocks. We'll add these back when we build to main
-    # document.
+    # Do some post-processing on the pygments output to split things back
+    # into sections and remove partial `<pre>` blocks.
     code_html = code_html.
       split(/\n*<span class="c1"># DIVIDER<\/span>\n*/m).
       map { |code| code.sub(/\n?<div class="highlight"><pre>/m, '') }.
       map { |code| code.sub(/\n?<\/pre><\/div>\n/m, '') }
 
-    # Combine the docs and code lists into the same sections style list we
-    # started with.
+    # Lastly, combine the docs and code lists back into a list of two-tuples.
     docs_html.zip(code_html)
   end
 end
