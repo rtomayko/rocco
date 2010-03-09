@@ -30,9 +30,17 @@
 
 #### Prerequisites
 
-# The [rdiscount](http://github.com/rtomayko/rdiscount) library is
-# required for Markdown processing.
-require 'rdiscount'
+# We'll need a Markdown library. [RDiscount][rd], if we're lucky. Otherwise,
+# issue a warning and fall back on using BlueCloth.
+#
+# [rd]: http://github.com/rtomayko/rdiscount
+begin
+  require 'rdiscount'
+rescue LoadError => boom
+  warn "warn: #{boom}. trying bluecloth"
+  require 'bluecloth'
+  Markdown = BlueCloth
+end
 
 # We use [{{ mustache }}](http://defunkt.github.com/mustache/) for
 # templating.

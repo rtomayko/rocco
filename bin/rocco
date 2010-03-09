@@ -11,6 +11,11 @@ rescue LoadError
       warn "warn: #$!. trying again with rubygems"
       require 'rubygems'
       retry
+    else
+      require 'bluecloth'
+      Markdown = BlueCloth
+      $LOADED_FEATURES << 'rdiscount.rb'
+      retry
     end
   when /rocco/
     if !$:.include?(libdir)
