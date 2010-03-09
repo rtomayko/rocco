@@ -41,67 +41,58 @@ for a set of Ruby source files:</p>
 <pre><code>rocco lib/*.rb
 </code></pre>
 
-<p>The HTML files are written to the current working directory.</p>
-</td>
+<p>The HTML files are written to the current working directory.</p></td>
       <td class=code>
         <div class='highlight'><pre></pre></div>
       </td>
     </tr>
     <tr id='section-2'>
-      <td class=docs>
-<h3>Prerequisites</h3>
-</td>
+      <td class=docs><h3>Prerequisites</h3></td>
       <td class=code>
         <div class='highlight'><pre></pre></div>
       </td>
     </tr>
     <tr id='section-3'>
-      <td class=docs>
-<p>The <a href="http://github.com/rtomayko/rdiscount">rdiscount</a> library is
-required for Markdown processing.</p>
-</td>
+      <td class=docs><p>We&rsquo;ll need a Markdown library. <a href="http://github.com/rtomayko/rdiscount">RDiscount</a>, if we&rsquo;re lucky. Otherwise,
+issue a warning and fall back on using BlueCloth.</p></td>
       <td class=code>
-        <div class='highlight'><pre><span class="nb">require</span> <span class="s1">&#39;rdiscount&#39;</span>
-</pre></div>
+        <div class='highlight'><pre><span class="k">begin</span>
+  <span class="nb">require</span> <span class="s1">&#39;rdiscount&#39;</span>
+<span class="k">rescue</span> <span class="no">LoadError</span> <span class="o">=&gt;</span> <span class="n">boom</span>
+  <span class="nb">warn</span> <span class="s2">&quot;warn: </span><span class="si">#{</span><span class="n">boom</span><span class="si">}</span><span class="s2">. trying bluecloth&quot;</span>
+  <span class="nb">require</span> <span class="s1">&#39;bluecloth&#39;</span>
+  <span class="no">Markdown</span> <span class="o">=</span> <span class="no">BlueCloth</span>
+<span class="k">end</span></pre></div>
       </td>
     </tr>
     <tr id='section-4'>
-      <td class=docs>
-<p>We use <a href="http://defunkt.github.com/mustache/">{{ mustache }}</a> for
-templating.</p>
-</td>
+      <td class=docs><p>We use <a href="http://defunkt.github.com/mustache/">{{ mustache }}</a> for
+HTML templating.</p></td>
       <td class=code>
-        <div class='highlight'><pre><span class="nb">require</span> <span class="s1">&#39;mustache&#39;</span>
-</pre></div>
+        <div class='highlight'><pre><span class="nb">require</span> <span class="s1">&#39;mustache&#39;</span></pre></div>
       </td>
     </tr>
     <tr id='section-5'>
-      <td class=docs>
-<p>Code is run through <a href="http://pygments.org/">Pygments</a> for syntax
-highlighting. Fail fast if we can&rsquo;t find the <code>pygmentize</code> program.</p>
-</td>
+      <td class=docs><p>Code is run through <a href="http://pygments.org/">Pygments</a> for syntax
+highlighting. Fail fast right here if we can&rsquo;t find the <code>pygmentize</code>
+program on PATH.</p></td>
       <td class=code>
         <div class='highlight'><pre><span class="k">if</span> <span class="o">!</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;PATH&#39;</span><span class="o">].</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">any?</span> <span class="p">{</span> <span class="o">|</span><span class="n">dir</span><span class="o">|</span> <span class="no">File</span><span class="o">.</span><span class="n">exist?</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">dir</span><span class="si">}</span><span class="s2">/pygmentize&quot;</span><span class="p">)</span> <span class="p">}</span>
   <span class="nb">fail</span> <span class="s2">&quot;Pygments is required for syntax highlighting&quot;</span>
-<span class="k">end</span>
-</pre></div>
+<span class="k">end</span></pre></div>
       </td>
     </tr>
     <tr id='section-6'>
-      <td class=docs>
-<h3>Public Interface</h3>
-</td>
+      <td class=docs><h3>Public Interface</h3></td>
       <td class=code>
         <div class='highlight'><pre></pre></div>
       </td>
     </tr>
     <tr id='section-7'>
-      <td class=docs>
-<p><code>Rocco.new</code> takes a source <code>filename</code> and an optional <code>block</code>.
+      <td class=docs><p><code>Rocco.new</code> takes a source <code>filename</code> and an optional <code>block</code>.
 When <code>block</code> is given, it must read the contents of the file using
 whatever means necessary and return it as a string. With no <code>block</code>, the
-file is read to retrieve data.</p>
-</td>
+file is read to retrieve data.</p></td>
       <td class=code>
         <div class='highlight'><pre><span class="k">class</span> <span class="nc">Rocco</span>
   <span class="no">VERSION</span> <span class="o">=</span> <span class="s1">&#39;0.1&#39;</span>
@@ -113,64 +104,45 @@ file is read to retrieve data.</p>
         <span class="k">yield</span>
       <span class="k">else</span>
         <span class="no">File</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-      <span class="k">end</span></pre></div>
+      <span class="k">end</span>
+    <span class="vi">@sections</span> <span class="o">=</span> <span class="n">highlight</span><span class="p">(</span><span class="nb">split</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="vi">@data</span><span class="p">)))</span>
+  <span class="k">end</span></pre></div>
       </td>
     </tr>
     <tr id='section-8'>
-      <td class=docs>
-<p>Parsing and highlighting</p>
-</td>
+      <td class=docs><p>The filename as given to <code>Rocco.new</code>.</p></td>
       <td class=code>
-        <div class='highlight'><pre>    <span class="vi">@sections</span> <span class="o">=</span> <span class="n">highlight</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="vi">@data</span><span class="p">))</span>
-  <span class="k">end</span>
-</pre></div>
+        <div class='highlight'><pre>  <span class="kp">attr_reader</span> <span class="ss">:file</span></pre></div>
       </td>
     </tr>
     <tr id='section-9'>
-      <td class=docs>
-<p>The filename as given to <code>Rocco.new</code>.</p>
-</td>
+      <td class=docs><p>A list of two-tuples representing each <em>section</em> of the source file. Each
+item in the list has the form: <code>[docs_html, code_html]</code>, where both
+elements are strings containing the documentation and source code HTML,
+respectively.</p></td>
       <td class=code>
-        <div class='highlight'><pre>  <span class="kp">attr_reader</span> <span class="ss">:file</span>
-</pre></div>
+        <div class='highlight'><pre>  <span class="kp">attr_reader</span> <span class="ss">:sections</span></pre></div>
       </td>
     </tr>
     <tr id='section-10'>
-      <td class=docs>
-<p>A list of two-tuples representing each <em>section</em> of the source file. Each
-item in the list has the form: <code>[docs_html, code_html]</code>, where both
-elements are strings containing the documentation and source code HTML,
-respectively.</p>
-</td>
-      <td class=code>
-        <div class='highlight'><pre>  <span class="kp">attr_reader</span> <span class="ss">:sections</span>
-</pre></div>
-      </td>
-    </tr>
-    <tr id='section-11'>
-      <td class=docs>
-<p>Generate HTML output for the entire document.</p>
-</td>
+      <td class=docs><p>Generate HTML output for the entire document.</p></td>
       <td class=code>
         <div class='highlight'><pre>  <span class="nb">require</span> <span class="s1">&#39;rocco/layout&#39;</span>
   <span class="k">def</span> <span class="nf">to_html</span>
     <span class="no">Rocco</span><span class="o">::</span><span class="no">Layout</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span><span class="o">.</span><span class="n">render</span>
-  <span class="k">end</span>
-</pre></div>
+  <span class="k">end</span></pre></div>
       </td>
     </tr>
-    <tr id='section-12'>
-      <td class=docs>
-<h3>Internal Parsing and Highlighting</h3>
-</td>
+    <tr id='section-11'>
+      <td class=docs><h3>Internal Parsing and Highlighting</h3></td>
       <td class=code>
         <div class='highlight'><pre></pre></div>
       </td>
     </tr>
-    <tr id='section-13'>
-      <td class=docs>
-<p>Parse the raw file data into a list of two-tuples.</p>
-</td>
+    <tr id='section-12'>
+      <td class=docs><p>Parse the raw file data into a list of two-tuples. Each tuple has the
+form <code>[docs, code]</code> where both elements are arrays containing the
+raw lines parsed from the input file.</p></td>
       <td class=code>
         <div class='highlight'><pre>  <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="n">sections</span> <span class="o">=</span> <span class="o">[]</span>
@@ -189,86 +161,76 @@ respectively.</p>
     <span class="k">end</span>
     <span class="n">sections</span> <span class="o">&lt;&lt;</span> <span class="o">[</span><span class="n">docs</span><span class="p">,</span> <span class="n">code</span><span class="o">]</span> <span class="k">if</span> <span class="n">docs</span><span class="o">.</span><span class="n">any?</span> <span class="o">||</span> <span class="n">code</span><span class="o">.</span><span class="n">any?</span>
     <span class="n">sections</span>
-  <span class="k">end</span>
-</pre></div>
+  <span class="k">end</span></pre></div>
       </td>
     </tr>
-    <tr id='section-14'>
-      <td class=docs>
-<p>Take the raw section data and apply markdown formatting and syntax
-highlighting.</p>
-</td>
+    <tr id='section-13'>
+      <td class=docs><p>Take the list of paired <em>sections</em> two-tuples and split into two
+separate lists: one holding the comments with leaders removed and
+one with the code blocks.</p></td>
       <td class=code>
-        <div class='highlight'><pre>  <span class="k">def</span> <span class="nf">highlight</span><span class="p">(</span><span class="n">sections</span><span class="p">)</span></pre></div>
-      </td>
-    </tr>
-    <tr id='section-15'>
-      <td class=docs>
-<p>Start by splitting the docs and codes blocks into two separate lists.</p>
-</td>
-      <td class=code>
-        <div class='highlight'><pre>    <span class="n">docs_blocks</span><span class="p">,</span> <span class="n">code_blocks</span> <span class="o">=</span> <span class="o">[]</span><span class="p">,</span> <span class="o">[]</span>
+        <div class='highlight'><pre>  <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="n">sections</span><span class="p">)</span>
+    <span class="n">docs_blocks</span><span class="p">,</span> <span class="n">code_blocks</span> <span class="o">=</span> <span class="o">[]</span><span class="p">,</span> <span class="o">[]</span>
     <span class="n">sections</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">docs</span><span class="p">,</span><span class="n">code</span><span class="o">|</span>
       <span class="n">docs_blocks</span> <span class="o">&lt;&lt;</span> <span class="n">docs</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">line</span><span class="o">|</span> <span class="n">line</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sr">/^\s*#\s?/</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
       <span class="n">code_blocks</span> <span class="o">&lt;&lt;</span> <span class="n">code</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">end</span>
-</pre></div>
+    <span class="o">[</span><span class="n">docs_blocks</span><span class="p">,</span> <span class="n">code_blocks</span><span class="o">]</span>
+  <span class="k">end</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-14'>
+      <td class=docs><p>Take the result of <code>split</code> and apply Markdown formatting to comments and
+syntax highlighting to source code.</p></td>
+      <td class=code>
+        <div class='highlight'><pre>  <span class="k">def</span> <span class="nf">highlight</span><span class="p">(</span><span class="n">blocks</span><span class="p">)</span>
+    <span class="n">docs_blocks</span><span class="p">,</span> <span class="n">code_blocks</span> <span class="o">=</span> <span class="n">blocks</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-15'>
+      <td class=docs><p>Combine all docs blocks into a single big markdown document with section
+dividers and run through the Markdown processor. Then split it back out
+into separate sections.</p></td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="n">markdown</span> <span class="o">=</span> <span class="n">docs_blocks</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">##### DIVIDER</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">docs_html</span> <span class="o">=</span> <span class="no">Markdown</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">markdown</span><span class="p">,</span> <span class="ss">:smart</span><span class="p">)</span><span class="o">.</span>
+      <span class="n">to_html</span><span class="o">.</span>
+      <span class="nb">split</span><span class="p">(</span><span class="sr">/\n*&lt;h5&gt;DIVIDER&lt;\/h5&gt;\n*/m</span><span class="p">)</span></pre></div>
       </td>
     </tr>
     <tr id='section-16'>
-      <td class=docs>
-<p>Combine all docs blocks into a single big markdown document and run
-through RDiscount. Then split it back out into separate sections.</p>
-</td>
-      <td class=code>
-        <div class='highlight'><pre>    <span class="n">markdown</span> <span class="o">=</span> <span class="n">docs_blocks</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">##### DIVIDER</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">docs_html</span> <span class="o">=</span> <span class="no">Markdown</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">markdown</span><span class="p">,</span> <span class="ss">:smart</span><span class="p">)</span><span class="o">.</span>
-      <span class="n">to_html</span><span class="o">.</span>
-      <span class="nb">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&lt;h5&gt;DIVIDER&lt;/h5&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-      </td>
-    </tr>
-    <tr id='section-17'>
-      <td class=docs>
-<p>Combine all code blocks into a single big stream and run through
-pygments. We <code>popen</code> a pygmentize process and then fork off a
-writer process.</p>
-</td>
+      <td class=docs><p>Combine all code blocks into a single big stream and run through
+Pygments. We <code>popen</code> a read/write pygmentize process in the parent and
+then fork off a child process to write the input.</p></td>
       <td class=code>
         <div class='highlight'><pre>    <span class="n">code_html</span> <span class="o">=</span> <span class="kp">nil</span>
     <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;|pygmentize -l ruby -f html&quot;</span><span class="p">,</span> <span class="s1">&#39;r+&#39;</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">fd</span><span class="o">|</span>
-      <span class="nb">fork</span> <span class="p">{</span>
-        <span class="n">fd</span><span class="o">.</span><span class="n">close_read</span>
-        <span class="n">fd</span><span class="o">.</span><span class="n">write</span> <span class="n">code_blocks</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"># DIVIDER</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">fd</span><span class="o">.</span><span class="n">close_write</span>
-        <span class="nb">exit!</span>
-      <span class="p">}</span>
-
+      <span class="n">pid</span> <span class="o">=</span>
+        <span class="nb">fork</span> <span class="p">{</span>
+          <span class="n">fd</span><span class="o">.</span><span class="n">close_read</span>
+          <span class="n">fd</span><span class="o">.</span><span class="n">write</span> <span class="n">code_blocks</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2"># DIVIDER</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+          <span class="n">fd</span><span class="o">.</span><span class="n">close_write</span>
+          <span class="nb">exit!</span>
+        <span class="p">}</span>
       <span class="n">fd</span><span class="o">.</span><span class="n">close_write</span>
       <span class="n">code_html</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">read</span>
       <span class="n">fd</span><span class="o">.</span><span class="n">close_read</span>
-    <span class="k">end</span>
-</pre></div>
+      <span class="no">Process</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span>
+    <span class="k">end</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-17'>
+      <td class=docs><p>Do some post-processing on the pygments output to split things back
+into sections and remove partial <code>&lt;pre&gt;</code> blocks.</p></td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="n">code_html</span> <span class="o">=</span> <span class="n">code_html</span><span class="o">.</span>
+      <span class="nb">split</span><span class="p">(</span><span class="sr">/\n*&lt;span class=&quot;c1&quot;&gt;# DIVIDER&lt;\/span&gt;\n*/m</span><span class="p">)</span><span class="o">.</span>
+      <span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">code</span><span class="o">|</span> <span class="n">code</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sr">/\n?&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;/m</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span>
+      <span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">code</span><span class="o">|</span> <span class="n">code</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sr">/\n?&lt;\/pre&gt;&lt;\/div&gt;\n/m</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="p">}</span></pre></div>
       </td>
     </tr>
     <tr id='section-18'>
-      <td class=docs>
-<p>Do some post-processing on the pygments output to remove
-partial <code>&lt;pre&gt;</code> blocks. We&rsquo;ll add these back when we build to main
-document.</p>
-</td>
-      <td class=code>
-        <div class='highlight'><pre>    <span class="n">code_html</span> <span class="o">=</span> <span class="n">code_html</span><span class="o">.</span>
-      <span class="nb">split</span><span class="p">(</span><span class="sr">/\n?&lt;span class=&quot;c1&quot;&gt;# DIVIDER&lt;\/span&gt;\n?/m</span><span class="p">)</span><span class="o">.</span>
-      <span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">code</span><span class="o">|</span> <span class="n">code</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sr">/\n?&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;/m</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span>
-      <span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">code</span><span class="o">|</span> <span class="n">code</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sr">/\n?&lt;\/pre&gt;&lt;\/div&gt;\n/m</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="p">}</span>
-</pre></div>
-      </td>
-    </tr>
-    <tr id='section-19'>
-      <td class=docs>
-<p>Combine the docs and code lists into the same sections style list we
-started with.</p>
+      <td class=docs><p>Lastly, combine the docs and code lists back into a list of two-tuples.</p>
 </td>
       <td class=code>
         <div class='highlight'><pre>    <span class="n">docs_html</span><span class="o">.</span><span class="n">zip</span><span class="p">(</span><span class="n">code_html</span><span class="p">)</span>
