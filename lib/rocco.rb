@@ -30,8 +30,19 @@
 
 #### Prerequisites
 
-# The RDiscount library is required for Markdown processing.
+# The [rdiscount](http://github.com/rtomayko/rdiscount) library is
+# required for Markdown processing.
 require 'rdiscount'
+
+# We use [{{ mustache }}](http://defunkt.github.com/mustache/) for
+# templating.
+require 'mustache'
+
+# Code is run through [Pygments](http://pygments.org/) for syntax
+# highlighting. Fail fast if we can't find the `pygmentize` program.
+if ! ENV['PATH'].split(':').any? { |dir| File.exist?("#{dir}/pygmentize") }
+  fail "Pygments is required for syntax highlighting"
+end
 
 #### Public Interface
 
@@ -48,7 +59,7 @@ class Rocco
       else
         File.read(filename)
       end
-    # Jump right into parsing and highlighting.
+    # Parsing and highlighting
     @sections = highlight(parse(@data))
   end
 

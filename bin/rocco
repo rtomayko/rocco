@@ -22,13 +22,9 @@ rescue LoadError
   raise
 end
 
-rocco =
-  Rocco.new(ARGV[0]) do
-    if $stdin.tty?
-      File.read(ARGV[0])
-    else
-      $stdin.read
-    end
-  end
-
-$stdout.write(rocco.to_html)
+ARGV.each do |filename|
+  rocco = Rocco.new(filename)
+  dest = File.basename(filename, '.rb') + '.html'
+  warn "rocco: #{filename} -> #{dest}"
+  File.open(dest, 'wb') { |fd| fd.write(rocco.to_html) }
+end
