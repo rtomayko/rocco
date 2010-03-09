@@ -94,8 +94,6 @@ class Rocco
           docs, code = [], []
         end
         docs << line
-      when /^\s*$/
-        code << line
       else
         code << line
       end
