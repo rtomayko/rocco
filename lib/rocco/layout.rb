@@ -8,7 +8,7 @@ class Rocco::Layout < Mustache
   end
 
   def title
-    @doc.file
+    File.basename(@doc.file)
   end
 
   def sections
