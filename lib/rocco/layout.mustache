@@ -7,6 +7,7 @@
 </head>
 <body>
 <div id='container'>
+  <div id="background"></div>
   <table cellspacing=0 cellpadding=0>
   <thead>
     <tr>
@@ -17,7 +18,12 @@
   <tbody>
     {{#sections}}
     <tr id='section-{{ num }}'>
-      <td class=docs>{{{ docs }}}</td>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-{{ num }}">#</a>
+        </div>
+        {{{ docs }}}
+      </td>
       <td class=code>
         <div class='highlight'><pre>{{{ code }}}</pre></div>
       </td>
