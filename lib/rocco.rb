@@ -166,3 +166,5 @@ class Rocco
     docs_html.zip(code_html)
   end
 end
+
+# And that's it.
