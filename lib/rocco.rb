@@ -4,7 +4,7 @@
 # Rocco reads Ruby source files and produces annotated source documentation
 # in HTML format. Comments are formatted with [Markdown][md] and presented
 # alongside syntax highlighted code so as to give an annotation effect.
-# This page is the result of running Rocco against its own source file.
+# This page is the result of running Rocco against [its own source file][so].
 #
 # Most of this was written while waiting for [node.js][no] to build (so I
 # could use Docco!). Docco's gorgeous HTML and CSS are taken verbatim.
@@ -12,7 +12,7 @@
 # [CoffeeScript][co] and may be a bit easier to obtain and install in
 # existing Ruby environments or where node doesn't run yet.
 #
-# Rocco can be installed with rubygems:
+# Install Rocco with Rubygems:
 #
 #     gem install rocco
 #
@@ -27,6 +27,7 @@
 # [do]: http://jashkenas.github.com/docco/
 # [co]: http://coffeescript.org/
 # [md]: http://daringfireball.net/projects/markdown/
+# [so]: http://github.com/rtomayko/rocco/blob/master/lib/rocco.rb#commit
 
 #### Prerequisites
 
