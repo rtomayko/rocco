@@ -3,7 +3,16 @@ $LOAD_PATH.unshift 'lib'
 require 'rake/testtask'
 require 'rake/clean'
 
-task :default => [:docs]
+task :default => [:sup, :docs]
+
+desc 'Holla'
+task :sup do
+  verbose do
+    lines = File.read('README').split("\n")[0,12]
+    lines.map! { |line| line[15..-1] }
+    puts lines.join("\n")
+  end
+end
 
 desc 'Run tests (default)'
 Rake::TestTask.new(:test) do |t|
