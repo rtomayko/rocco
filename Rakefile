@@ -39,21 +39,18 @@ end
 # GEMSPEC ===================================================================
 
 file 'rocco.gemspec' => FileList['{lib,test,bin}/**','Rakefile'] do |f|
-  # read version from tilt.rb
   version = File.read('lib/rocco.rb')[/VERSION = '(.*)'/] && $1
-  # read spec file and split out manifest section
+  date = Time.now.strftime("%Y-%m-%d")
   spec = File.
     read(f.name).
     sub(/s\.version\s*=\s*'.*'/, "s.version = '#{version}'")
   parts = spec.split("  # = MANIFEST =\n")
-  # determine file list from git ls-files
   files = `git ls-files`.
     split("\n").sort.reject{ |file| file =~ /^\./ }.
     map{ |file| "    #{file}" }.join("\n")
-  # piece file back together and write...
   parts[1] = "  s.files = %w[\n#{files}\n  ]\n"
   spec = parts.join("  # = MANIFEST =\n")
-  spec.sub!(/s.date = '.*'/, "s.date = '#{Time.now.strftime("%Y-%m-%d")}'")
+  spec.sub!(/s.date = '.*'/, "s.date = '#{date}'")
   File.open(f.name, 'w') { |io| io.write(spec) }
-  puts "updated #{f.name}"
+  puts "#{f.name} #{version} (#{date})"
 end
