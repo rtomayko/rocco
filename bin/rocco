@@ -1,6 +1,41 @@
 #!/usr/bin/env ruby
-libdir = File.expand_path('../../lib', __FILE__).sub(/^#{Dir.pwd}\//, '')
+#/ Usage: rocco [-o <dir>] <file>...
+#/ Generate literate-programming-style documentation for Ruby source <file>s.
+#/
+#/ Options:
+#/   -o, --output=<dir>   Directory where generated HTML files are written
+#/
+#/       --help           Show this help message
 
+require 'optparse'
+
+# Write usage message to stdout and exit.
+def usage(stream=$stderr, status=1)
+  stream.puts File.read(__FILE__).
+    grep(/^#\//).
+    map { |line| line.sub(/^#. ?/, '') }.
+    join
+  exit status
+end
+
+# Like `Kernel#abort` but writes a note encouraging the user to consult
+# `rocco --help` for more information.
+def abort_with_note(message=nil)
+  $stderr.puts message if message
+  abort "See `rocco --help' for usage information."
+end
+
+# Parse command line options, aborting if anything goes wrong.
+output_dir = '.'
+ARGV.options { |o|
+  o.program_name = File.basename($0)
+  o.on("-o", "--output=DIR") { |dir| output_dir = dir }
+  o.on_tail("-h", "--help") { usage($stdout, 0) }
+  o.parse!
+} or abort_with_note
+
+# What a fucking mess. Most of this is duplicated in rocco.rb too.
+libdir = File.expand_path('../../lib', __FILE__).sub(/^#{Dir.pwd}\//, '')
 begin
   require 'rdiscount'
   require 'rocco'
@@ -27,9 +62,12 @@ rescue LoadError
   raise
 end
 
+# Create the output directory if it doesn't already exist.
+Dir.mkdir output_dir if !File.directory?(output_dir)
+
 ARGV.each do |filename|
   rocco = Rocco.new(filename)
-  dest = File.basename(filename, '.rb') + '.html'
+  dest = "#{output_dir}/#{File.basename(filename, '.rb') + '.html'}"
   warn "rocco: #{filename} -> #{dest}"
   File.open(dest, 'wb') { |fd| fd.write(rocco.to_html) }
 end
