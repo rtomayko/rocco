@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>layout.rb</title>
+  <link rel="stylesheet" href="http://jashkenas.github.com/docco/resources/docco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <table cellspacing=0 cellpadding=0>
+  <thead>
+    <tr>
+      <th class=docs><h1>layout.rb</h1></th>
+      <th class=code></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr id='section-1'>
+      <td class=docs>
+        <div class="octowrap">
+          <a class="octothorpe" href="#section-1">#</a>
+        </div>
+        
+
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><span class="nb">require</span> <span class="s1">&#39;mustache&#39;</span>
+
+<span class="k">class</span> <span class="nc">Rocco</span><span class="o">::</span><span class="no">Layout</span> <span class="o">&lt;</span> <span class="no">Mustache</span>
+  <span class="nb">self</span><span class="o">.</span><span class="n">template_path</span> <span class="o">=</span> <span class="no">File</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">__FILE__</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+    <span class="vi">@doc</span> <span class="o">=</span> <span class="n">doc</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">title</span>
+    <span class="no">File</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="vi">@doc</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">sections</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="vi">@doc</span><span class="o">.</span><span class="n">sections</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">docs</span><span class="p">,</span><span class="n">code</span><span class="o">|</span>
+      <span class="p">{</span>
+        <span class="ss">:docs</span>  <span class="o">=&gt;</span> <span class="n">docs</span><span class="p">,</span>
+        <span class="ss">:code</span>  <span class="o">=&gt;</span> <span class="n">code</span><span class="p">,</span>
+        <span class="ss">:num</span>   <span class="o">=&gt;</span> <span class="p">(</span><span class="n">num</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">)</span>
+      <span class="p">}</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span></pre></div>
+      </td>
+    </tr>
+    </table>
+</div>
+</body>
