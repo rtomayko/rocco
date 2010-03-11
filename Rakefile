@@ -1,11 +1,38 @@
+$LOAD_PATH.unshift 'lib'
+
 require 'rake/testtask'
-task :default => :test
+require 'rake/clean'
+
+task :default => [:docs]
 
 desc 'Run tests (default)'
 Rake::TestTask.new(:test) do |t|
   t.test_files = FileList['test/*_test.rb']
   t.ruby_opts = ['-rubygems'] if defined? Gem
 end
+
+# Bring in Rocco tasks
+require 'rocco/tasks'
+Rocco::make 'docs/'
+
+desc 'Build rocco docs'
+task :docs => :rocco
+directory 'docs/'
+
+desc 'Build docs and open in browser for the reading'
+task :read => :docs do
+  sh 'open docs/rocco.html'
+end
+
+# Make index.html a copy of rocco.html
+file 'docs/index.html' => 'docs/rocco.html' do |f|
+  cp 'docs/rocco.html', 'docs/index.html', :preserve => true
+end
+task :docs => 'docs/index.html'
+CLEAN.include 'docs/index.html'
+
+# Alias for docs task
+task :doc => :docs
 
 # GITHUB PAGES ===============================================================
 
