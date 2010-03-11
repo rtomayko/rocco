@@ -3,8 +3,8 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
 
   s.name = 'rocco'
-  s.version = '0.1'
-  s.date = '2010-03-08'
+  s.version = '0.2'
+  s.date = '2010-03-11'
 
   s.description = "Docco in Ruby"
   s.summary     = s.description
@@ -15,12 +15,13 @@ Gem::Specification.new do |s|
   # = MANIFEST =
   s.files = %w[
     COPYING
-    README.md
+    README
     Rakefile
     bin/rocco
     lib/rocco.rb
     lib/rocco/layout.mustache
     lib/rocco/layout.rb
+    lib/rocco/tasks.rb
     rocco.gemspec
   ]
   # = MANIFEST =
