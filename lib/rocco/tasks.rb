@@ -92,7 +92,7 @@ class Rocco
       prerequisites = [@dest, source_file] + rocco_source_files
       file dest_file => prerequisites do |f|
         verbose { puts "rocco: #{source_file} -> #{dest_file}" }
-        rocco = Rocco.new(source_file)
+        rocco = Rocco.new(source_file, @sources.to_a)
         File.open(dest_file, 'wb') { |fd| fd.write(rocco.to_html) }
       end
       task @name => dest_file

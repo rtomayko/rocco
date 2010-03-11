@@ -21,4 +21,18 @@ class Rocco::Layout < Mustache
       }
     end
   end
+
+  def sources?
+    @doc.sources.length > 1
+  end
+
+  def sources
+    @doc.sources.sort.map do |source|
+      {
+        :path => source,
+        :basename => File.basename(source),
+        :url => File.basename(source, '.rb') + '.html'
+      }
+    end
+  end
 end

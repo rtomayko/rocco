@@ -27,12 +27,21 @@ end
 
 # Parse command line options, aborting if anything goes wrong.
 output_dir = '.'
+sources = []
 ARGV.options { |o|
   o.program_name = File.basename($0)
   o.on("-o", "--output=DIR") { |dir| output_dir = dir }
   o.on_tail("-h", "--help") { usage($stdout, 0) }
   o.parse!
 } or abort_with_note
+
+# Eat sources from ARGV.
+sources << ARGV.shift while ARGV.any?
+
+# Make sure we have some files to work with.
+if sources.empty?
+  abort_with_note "#{File.basename($0)}: no input <file>s given"
+end
 
 # What a fucking mess. Most of this is duplicated in rocco.rb too.
 libdir = File.expand_path('../../lib', __FILE__).sub(/^#{Dir.pwd}\//, '')
@@ -65,9 +74,10 @@ end
 # Create the output directory if it doesn't already exist.
 Dir.mkdir output_dir if !File.directory?(output_dir)
 
-ARGV.each do |filename|
-  rocco = Rocco.new(filename)
-  dest = "#{output_dir}/#{File.basename(filename, '.rb') + '.html'}"
-  warn "rocco: #{filename} -> #{dest}"
+# Run each file through Rocco and write output.
+sources.each do |filename|
+  rocco = Rocco.new(filename, sources)
+  dest = File.join(output_dir, File.basename(filename, '.rb') + '.html')
+  puts "rocco: #{filename} -> #{dest}"
   File.open(dest, 'wb') { |fd| fd.write(rocco.to_html) }
 end

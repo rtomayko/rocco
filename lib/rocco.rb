@@ -56,14 +56,14 @@ end
 
 #### Public Interface
 
-# `Rocco.new` takes a source `filename` and an optional `block`.
-# When `block` is given, it must read the contents of the file using
-# whatever means necessary and return it as a string. With no `block`, the
-# file is read to retrieve data.
+# `Rocco.new` takes a source `filename`, an optional list of source filenames
+# for other documentation sources, and an optional `block`. When `block` is
+# given, it must read the contents of the file using whatever means necessary
+# and return it as a string. With no `block`, the file is read to retrieve data.
 class Rocco
   VERSION = '0.2'
 
-  def initialize(filename, &block)
+  def initialize(filename, sources=[], &block)
     @file = filename
     @data =
       if block_given?
@@ -71,6 +71,7 @@ class Rocco
       else
         File.read(filename)
       end
+    @sources = sources
     @sections = highlight(split(parse(@data)))
   end
 
@@ -82,6 +83,10 @@ class Rocco
   # elements are strings containing the documentation and source code HTML,
   # respectively.
   attr_reader :sections
+
+  # A list of all source filenames included in the documentation set. Useful
+  # for building an index of other files.
+  attr_reader :sources
 
   # Generate HTML output for the entire document.
   require 'rocco/layout'
