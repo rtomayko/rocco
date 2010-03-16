@@ -1,11 +1,14 @@
 #!/usr/bin/env ruby
-#/ Usage: rocco [-o <dir>] <file>...
+#/ Usage: rocco [-l <lang>] [-c <chars>] [-o <dir>] <file>...
 #/ Generate literate-programming-style documentation for Ruby source <file>s.
 #/
 #/ Options:
-#/   -o, --output=<dir>   Directory where generated HTML files are written
+#/   -l, --language=<lang>  The Pygments lexer to use to highlight code
+#/   -c, --comment-chars=<chars>
+#/                          The string to recognize as a comment marker
+#/   -o, --output=<dir>     Directory where generated HTML files are written
 #/
-#/       --help           Show this help message
+#/       --help             Show this help message
 
 require 'optparse'
 
