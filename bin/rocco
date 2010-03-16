@@ -28,9 +28,12 @@ end
 # Parse command line options, aborting if anything goes wrong.
 output_dir = '.'
 sources = []
+options = {}
 ARGV.options { |o|
   o.program_name = File.basename($0)
   o.on("-o", "--output=DIR") { |dir| output_dir = dir }
+	o.on("-l", "--language=LANG") { |lang| options[:language] = lang }
+	o.on("-c", "--comment-chars=CHARS") { |chars| options[:comment_chars] = Regexp.escape(chars) }
   o.on_tail("-h", "--help") { usage($stdout, 0) }
   o.parse!
 } or abort_with_note
@@ -76,8 +79,10 @@ Dir.mkdir output_dir if !File.directory?(output_dir)
 
 # Run each file through Rocco and write output.
 sources.each do |filename|
-  rocco = Rocco.new(filename, sources)
-  dest = File.join(output_dir, File.basename(filename, '.rb') + '.html')
+  rocco = Rocco.new(filename, sources, options)
+  fnparts = filename.split('.')
+  fnparts.pop
+  dest = File.join(output_dir, fnparts.join('.') + '.html')
   puts "rocco: #{filename} -> #{dest}"
   File.open(dest, 'wb') { |fd| fd.write(rocco.to_html) }
 end

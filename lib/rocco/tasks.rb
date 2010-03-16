@@ -33,6 +33,15 @@
 #
 #     Rocco::make 'html/', ['lib/thing.rb', 'lib/thing/*.rb']
 #
+# Finally, it is also possible to specify which Pygments language you would
+# like to use to highlight the code, as well as the comment characters for the
+# language in the `options` hash:
+#
+#    Rocco::make 'html/', 'lib/thing/**/*.rb', {
+#      :language => 'io',
+#      :comment_chars => '#'
+#    }
+#
 
 # Might be nice to defer this until we actually need to build docs but this
 # will have to do for now.
@@ -49,10 +58,11 @@ class Rocco
   # `Rocco::Task.new` takes a task name, the destination directory docs
   # should be built under, and a source file pattern or file list.
   class Task
-    def initialize(task_name, dest='docs/', sources='lib/**/*.rb')
+    def initialize(task_name, dest='docs/', sources='lib/**/*.rb', options={})
       @name = task_name
       @dest = dest[-1] == ?/ ? dest : "#{dest}/"
       @sources = FileList[sources]
+      @options = options
 
       # Make sure there's a `directory` task defined for our destination.
       define_directory_task @dest
@@ -67,6 +77,8 @@ class Rocco
         # That way all Rocco generated are removed when running `rake clean`.
         CLEAN.include "#{@dest}#{dest_file}" if defined? CLEAN
       end
+
+			# Pass
     end
 
     # Define the destination directory task and make the `:rocco` task depend
@@ -92,7 +104,7 @@ class Rocco
       prerequisites = [@dest, source_file] + rocco_source_files
       file dest_file => prerequisites do |f|
         verbose { puts "rocco: #{source_file} -> #{dest_file}" }
-        rocco = Rocco.new(source_file, @sources.to_a)
+        rocco = Rocco.new(source_file, @sources.to_a, @options)
         File.open(dest_file, 'wb') { |fd| fd.write(rocco.to_html) }
       end
       task @name => dest_file
