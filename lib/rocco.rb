@@ -104,7 +104,7 @@ class Rocco
     docs, code = [], []
     data.split("\n").each do |line|
       case line
-      when /^\s*#(?!\!)/
+      when /^\s*#(?:\s+|$)/
         if code.any?
           sections << [docs, code]
           docs, code = [], []
