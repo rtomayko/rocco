@@ -77,8 +77,6 @@ class Rocco
         # That way all Rocco generated are removed when running `rake clean`.
         CLEAN.include "#{@dest}#{dest_file}" if defined? CLEAN
       end
-
-			# Pass
     end
 
     # Define the destination directory task and make the `:rocco` task depend
