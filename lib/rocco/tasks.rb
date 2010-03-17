@@ -51,8 +51,8 @@ require 'rocco'
 # of sugar over `Rocco::Task.new`. If you want your Rake task to be named
 # something other than `:rocco`, you can use `Rocco::Task` directly.
 class Rocco
-  def self.make(dest='docs/', source_files='lib/**/*.rb')
-    Task.new(:rocco, dest, source_files)
+  def self.make(dest='docs/', source_files='lib/**/*.rb', options={})
+    Task.new(:rocco, dest, source_files, options)
   end
 
   # `Rocco::Task.new` takes a task name, the destination directory docs
@@ -70,7 +70,7 @@ class Rocco
       # Run over the source file list, constructing destination filenames
       # and defining file tasks.
       @sources.each do |source_file|
-        dest_file = File.basename(source_file, '.rb') + '.html'
+        dest_file = File.basename(source_file).split('.')[0..-2].join('.') + '.html'
         define_file_task source_file, "#{@dest}#{dest_file}"
 
         # If `rake/clean` was required, add the generated files to the list.

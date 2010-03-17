@@ -28,11 +28,10 @@ class Rocco::Layout < Mustache
 
   def sources
     @doc.sources.sort.map do |source|
-      srcparts = File.basename(source).split('.')
       {
         :path => source,
         :basename => File.basename(source),
-        :url => srcparts.slice(0, srcparts.length - 1).join('.') + '.html'
+        :url => File.basename(source).split('.')[0..-2].join('.') + '.html'
       }
     end
   end

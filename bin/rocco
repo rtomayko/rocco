@@ -83,8 +83,7 @@ Dir.mkdir output_dir if !File.directory?(output_dir)
 # Run each file through Rocco and write output.
 sources.each do |filename|
   rocco = Rocco.new(filename, sources, options)
-  fnparts = filename.split('.')
-  dest = fnparts.slice(0, fnparts.length - 1).join('.') + '.html'
+  dest = filename.split('.')[0..-2].join('.') + '.html'
   puts "rocco: #{filename} -> #{dest}"
   File.open(dest, 'wb') { |fd| fd.write(rocco.to_html) }
 end
