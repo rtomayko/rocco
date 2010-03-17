@@ -136,7 +136,10 @@ class Rocco
     docs_blocks, code_blocks = [], []
     sections.each do |docs,code|
       docs_blocks << docs.map { |line| line.sub(@comment_pattern, '') }.join("\n")
-      code_blocks << code.join("\n")
+      code_blocks << code.map do |line|
+        tabs = line.match(/^(\t+)/)
+        tabs ? line.sub(/^\t+/, '  ' * tabs.captures[0].length) : line 
+      end.join("\n")
     end
     [docs_blocks, code_blocks]
   end
