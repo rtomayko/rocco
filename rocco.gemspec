@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
 
   s.name = 'rocco'
   s.version = '0.2'
-  s.date = '2010-03-16'
+  s.date = '2010-03-17'
 
   s.description = "Docco in Ruby"
   s.summary     = s.description
