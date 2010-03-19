@@ -47,12 +47,8 @@ end
 # HTML templating.
 require 'mustache'
 
-# Code is run through [Pygments](http://pygments.org/) for syntax
-# highlighting. Fail fast right here if we can't find the `pygmentize`
-# program on PATH.
-if ! ENV['PATH'].split(':').any? { |dir| File.exist?("#{dir}/pygmentize") }
-  fail "Pygments is required for syntax highlighting"
-end
+# We use `Net::HTTP` to highlight code via <http://pygments.appspot.com>
+require 'net/http'
 
 #### Public Interface
 
@@ -76,7 +72,11 @@ class Rocco
       else
         File.read(filename)
       end
-    defaults = { :language => 'ruby', :comment_chars => '#' }
+    defaults = {
+      :language      => 'ruby',
+      :comment_chars => '#',
+      :webservice    => false
+    }
     @options = defaults.merge(options)
     @sources = sources
     @comment_pattern = Regexp.new("^\\s*#{@options[:comment_chars]}")
@@ -157,23 +157,16 @@ class Rocco
       to_html.
       split(/\n*<h5>DIVIDER<\/h5>\n*/m)
 
-    # Combine all code blocks into a single big stream and run through
-    # Pygments. We `popen` a read/write pygmentize process in the parent and
-    # then fork off a child process to write the input.
-    code_html = nil
-    open("|pygmentize -l #{@options[:language]} -f html", 'r+') do |fd|
-      pid =
-        fork {
-          fd.close_read
-          fd.write code_blocks.join("\n\n# DIVIDER\n\n")
-          fd.close_write
-          exit!
-        }
-      fd.close_write
-      code_html = fd.read
-      fd.close_read
-      Process.wait(pid)
-    end
+    # Combine all code blocks into a single big stream and run through either
+    # `pygmentize(1)` or <http://pygments.appspot.com>
+    code_stream = code_blocks.join("\n\n# DIVIDER\n\n")
+
+    code_html =
+      if @options[:webservice]
+        highlight_webservice(code_stream)
+      else
+        highlight_pygmentize(code_stream)
+      end
 
     # Do some post-processing on the pygments output to split things back
     # into sections and remove partial `<pre>` blocks.
@@ -184,6 +177,34 @@ class Rocco
 
     # Lastly, combine the docs and code lists back into a list of two-tuples.
     docs_html.zip(code_html)
+  end
+
+  # We `popen` a read/write pygmentize process in the parent and
+  # then fork off a child process to write the input.
+  def highlight_pygmentize(code)
+    code_html = nil
+    open("|pygmentize -l #{@options[:language]} -f html", 'r+') do |fd|
+      pid =
+        fork {
+          fd.close_read
+          fd.write code
+          fd.close_write
+          exit!
+        }
+      fd.close_write
+      code_html = fd.read
+      fd.close_read
+      Process.wait(pid)
+    end
+
+    code_html
+  end
+
+  def highlight_webservice(code)
+    Net::HTTP.post_form(
+      URI.parse('http://pygments.appspot.com/'),
+      {'lang' => 'ruby', 'code' => code}
+    ).body
   end
 end
 

@@ -7,6 +7,9 @@
 #/   -c, --comment-chars=<chars>
 #/                          The string to recognize as a comment marker
 #/   -o, --output=<dir>     Directory where generated HTML files are written
+#/   -w                     Highlight code using http://pygments.appspot.com
+#/                          instead of pygmentize(1)
+#/
 #/
 #/       --help             Show this help message
 
@@ -37,9 +40,18 @@ ARGV.options { |o|
   o.on("-o", "--output=DIR") { |dir| output_dir = dir }
 	o.on("-l", "--language=LANG") { |lang| options[:language] = lang }
 	o.on("-c", "--comment-chars=CHARS") { |chars| options[:comment_chars] = Regexp.escape(chars) }
+  o.on("-w") { |v| options[:webservice] = v }
   o.on_tail("-h", "--help") { usage($stdout, 0) }
   o.parse!
 } or abort_with_note
+
+# Use http://pygments.appspot.com in case `pygmentize(1)` isn't available.
+if ! ENV['PATH'].split(':').any? { |dir| File.exist?("#{dir}/pygmentize") }
+  unless options[:webservice]
+    $stderr.puts "pygmentize not in PATH; using pygments.appspot.com instead"
+    options[:webservice] = true
+  end
+end
 
 # Eat sources from ARGV.
 sources << ARGV.shift while ARGV.any?
