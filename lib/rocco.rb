@@ -57,13 +57,18 @@ end
 #### Public Interface
 
 # `Rocco.new` takes a source `filename`, an optional list of source filenames
-# for other documentation sources, and an optional `block`. When `block` is
-# given, it must read the contents of the file using whatever means necessary
-# and return it as a string. With no `block`, the file is read to retrieve data.
+# for other documentation sources, an `options` hash, and an optional `block`.
+# The `options` hash respects two members: `:language`, which specifies which
+# Pygments lexer to use; and `:comment_chars`, which specifies the comment
+# characters of the target language. The options default to `'ruby'` and `'#'`,
+# respectively.
+# When `block` is given, it must read the contents of the file using whatever
+# means necessary and return it as a string. With no `block`, the file is read
+# to retrieve data.
 class Rocco
   VERSION = '0.3'
 
-  def initialize(filename, sources=[], &block)
+  def initialize(filename, sources=[], options={}, &block)
     @file = filename
     @data =
       if block_given?
@@ -71,7 +76,10 @@ class Rocco
       else
         File.read(filename)
       end
+    defaults = { :language => 'ruby', :comment_chars => '#' }
+    @options = defaults.merge(options)
     @sources = sources
+    @comment_pattern = Regexp.new("^\\s*#{@options[:comment_chars]}")
     @sections = highlight(split(parse(@data)))
   end
 
@@ -98,13 +106,16 @@ class Rocco
 
   # Parse the raw file data into a list of two-tuples. Each tuple has the
   # form `[docs, code]` where both elements are arrays containing the
-  # raw lines parsed from the input file.
+  # raw lines parsed from the input file. The first line is ignored if it
+  # is a shebang line.
   def parse(data)
     sections = []
     docs, code = [], []
-    data.split("\n").each do |line|
+    lines = data.split("\n")
+    lines.shift if lines[0] =~ /^\#\!/
+    lines.each do |line|
       case line
-      when /^\s*#(?:\s+|$)/
+      when @comment_pattern
         if code.any?
           sections << [docs, code]
           docs, code = [], []
@@ -124,8 +135,11 @@ class Rocco
   def split(sections)
     docs_blocks, code_blocks = [], []
     sections.each do |docs,code|
-      docs_blocks << docs.map { |line| line.sub(/^\s*#\s?/, '') }.join("\n")
-      code_blocks << code.join("\n")
+      docs_blocks << docs.map { |line| line.sub(@comment_pattern, '') }.join("\n")
+      code_blocks << code.map do |line|
+        tabs = line.match(/^(\t+)/)
+        tabs ? line.sub(/^\t+/, '  ' * tabs.captures[0].length) : line
+      end.join("\n")
     end
     [docs_blocks, code_blocks]
   end
@@ -147,7 +161,7 @@ class Rocco
     # Pygments. We `popen` a read/write pygmentize process in the parent and
     # then fork off a child process to write the input.
     code_html = nil
-    open("|pygmentize -l ruby -f html", 'r+') do |fd|
+    open("|pygmentize -l #{@options[:language]} -f html", 'r+') do |fd|
       pid =
         fork {
           fd.close_read

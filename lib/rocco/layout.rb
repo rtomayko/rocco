@@ -31,7 +31,7 @@ class Rocco::Layout < Mustache
       {
         :path => source,
         :basename => File.basename(source),
-        :url => File.basename(source, '.rb') + '.html'
+        :url => File.basename(source).split('.')[0..-2].join('.') + '.html'
       }
     end
   end
