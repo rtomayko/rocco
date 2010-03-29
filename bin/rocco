@@ -14,7 +14,7 @@ require 'optparse'
 
 # Write usage message to stdout and exit.
 def usage(stream=$stderr, status=1)
-  stream.puts File.read(__FILE__).
+  stream.puts File.readlines(__FILE__).
     grep(/^#\//).
     map { |line| line.sub(/^#. ?/, '') }.
     join
