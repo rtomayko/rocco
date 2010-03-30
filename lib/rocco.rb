@@ -164,7 +164,7 @@ class Rocco
 
     # Combine all code blocks into a single big stream and run through either
     # `pygmentize(1)` or <http://pygments.appspot.com>
-    code_stream = code_blocks.join("\n\n# DIVIDER\n\n")
+    code_stream = code_blocks.join("\n\n#{@options[:comment_chars]} DIVIDER\n\n")
 
     if (`which pygmentize` == "")
       code_html = highlight_webservice(code_stream)
@@ -175,7 +175,7 @@ class Rocco
     # Do some post-processing on the pygments output to split things back
     # into sections and remove partial `<pre>` blocks.
     code_html = code_html.
-      split(/\n*<span class="c."># DIVIDER<\/span>\n*/m).
+      split(/\n*<span class="c.">#{@options[:comment_chars]} DIVIDER<\/span>\n*/m).
       map { |code| code.sub(/\n?<div class="highlight"><pre>/m, '') }.
       map { |code| code.sub(/\n?<\/pre><\/div>\n/m, '') }
 
