@@ -50,6 +50,13 @@ require 'mustache'
 # We use `Net::HTTP` to highlight code via <http://pygments.appspot.com>
 require 'net/http'
 
+# Code is run through [Pygments](http://pygments.org/) for syntax
+# highlighting. If it's not installed, locally, use a webservice.
+# It may be a good idea to warn the user.
+#     if `which pygmentize` == ""
+#       puts "Warning: Pygments not found. Using pygments.appspot.com for highlighting"
+#     end
+
 #### Public Interface
 
 # `Rocco.new` takes a source `filename`, an optional list of source filenames
@@ -162,7 +169,6 @@ class Rocco
 
     code_html =
       if `which pygmentize` == ""
-        puts "Warning: pygmentize not installed. Using pygmentize.appspot.com"
         highlight_webservice(code_stream)
       elsif 
         highlight_pygmentize(code_stream)
