@@ -75,7 +75,6 @@ class Rocco
     defaults = {
       :language      => 'ruby',
       :comment_chars => '#',
-      :webservice    => false
     }
     @options = defaults.merge(options)
     @sources = sources
@@ -162,9 +161,10 @@ class Rocco
     code_stream = code_blocks.join("\n\n# DIVIDER\n\n")
 
     code_html =
-      if @options[:webservice]
+      if `which pygmentize` == ""
+        puts "Warning: pygmentize not installed. Using pygmentize.appspot.com"
         highlight_webservice(code_stream)
-      else
+      elsif 
         highlight_pygmentize(code_stream)
       end
 
@@ -199,7 +199,9 @@ class Rocco
 
     code_html
   end
-
+  
+  # Pygments is not one of those things that's trivial for a ruby user to install,
+  # so we'll fall back on a webservice to highlight the code if it isn't available.
   def highlight_webservice(code)
     Net::HTTP.post_form(
       URI.parse('http://pygments.appspot.com/'),

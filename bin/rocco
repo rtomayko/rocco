@@ -7,10 +7,6 @@
 #/   -c, --comment-chars=<chars>
 #/                          The string to recognize as a comment marker
 #/   -o, --output=<dir>     Directory where generated HTML files are written
-#/   -w                     Highlight code using http://pygments.appspot.com
-#/                          instead of pygmentize(1)
-#/
-#/
 #/       --help             Show this help message
 
 require 'optparse'
@@ -40,7 +36,6 @@ ARGV.options { |o|
   o.on("-o", "--output=DIR") { |dir| output_dir = dir }
 	o.on("-l", "--language=LANG") { |lang| options[:language] = lang }
 	o.on("-c", "--comment-chars=CHARS") { |chars| options[:comment_chars] = Regexp.escape(chars) }
-  o.on("-w") { |v| options[:webservice] = v }
   o.on_tail("-h", "--help") { usage($stdout, 0) }
   o.parse!
 } or abort_with_note
