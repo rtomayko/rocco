@@ -90,7 +90,7 @@ Dir.mkdir output_dir if !File.directory?(output_dir)
 # Run each file through Rocco and write output.
 sources.each do |filename|
   rocco = Rocco.new(filename, sources, options)
-  dest = "#{output_dir}/#{filename.scan(/(.*\/)?(.*)\.[^\.]+/)[0][1]}.html"
+  dest = "#{output_dir}/#{filename.scan(/(.*\/)?(.*?)(\.[^\.]+)?$/)[0][1]}.html"
   puts "rocco: #{filename} -> #{dest}"
   File.open(dest, 'wb') { |fd| fd.write(rocco.to_html) }
 end
