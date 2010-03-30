@@ -38,7 +38,7 @@
 begin
   require 'rdiscount'
 rescue LoadError => boom
-  warn "warn: #{boom}. trying bluecloth"
+  warn "WARNING: #{boom}. Trying bluecloth."
   require 'bluecloth'
   Markdown = BlueCloth
 end
@@ -52,10 +52,9 @@ require 'net/http'
 
 # Code is run through [Pygments](http://pygments.org/) for syntax
 # highlighting. If it's not installed, locally, use a webservice.
-# It may be a good idea to warn the user.
-#     if `which pygmentize` == ""
-#       puts "Warning: Pygments not found. Using pygments.appspot.com for highlighting"
-#     end
+if `which pygmentize` == ""
+  warn "WARNING: Pygments not found. Using webservice."
+end
 
 #### Public Interface
 
@@ -167,12 +166,11 @@ class Rocco
     # `pygmentize(1)` or <http://pygments.appspot.com>
     code_stream = code_blocks.join("\n\n# DIVIDER\n\n")
 
-    code_html =
-      if `which pygmentize` == ""
-        highlight_webservice(code_stream)
-      elsif 
-        highlight_pygmentize(code_stream)
-      end
+    if (`which pygmentize` == "")
+      code_html = highlight_webservice(code_stream)
+    else 
+      code_html = highlight_pygmentize(code_stream)
+    end
 
     # Do some post-processing on the pygments output to split things back
     # into sections and remove partial `<pre>` blocks.
