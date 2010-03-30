@@ -209,7 +209,7 @@ class Rocco
   def highlight_webservice(code)
     Net::HTTP.post_form(
       URI.parse('http://pygments.appspot.com/'),
-      {'lang' => 'ruby', 'code' => code}
+      {'lang' => @options['language'], 'code' => code}
     ).body
   end
 end
