@@ -52,7 +52,7 @@ require 'net/http'
 
 # Code is run through [Pygments](http://pygments.org/) for syntax
 # highlighting. If it's not installed, locally, use a webservice.
-if `which pygmentize` == ""
+if `which pygmentize`.blank?
   warn "WARNING: Pygments not found. Using webservice."
 end
 
@@ -166,7 +166,7 @@ class Rocco
     # `pygmentize(1)` or <http://pygments.appspot.com>
     code_stream = code_blocks.join("\n\n#{@options[:comment_chars]} DIVIDER\n\n")
 
-    if (`which pygmentize` == "")
+    if `which pygmentize`.blank?
       code_html = highlight_webservice(code_stream)
     else 
       code_html = highlight_pygmentize(code_stream)
