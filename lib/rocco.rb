@@ -38,7 +38,7 @@
 begin
   require 'rdiscount'
 rescue LoadError => boom
-  warn "warn: #{boom}. trying bluecloth"
+  warn "WARNING: #{boom}. Trying bluecloth."
   require 'bluecloth'
   Markdown = BlueCloth
 end
@@ -47,11 +47,13 @@ end
 # HTML templating.
 require 'mustache'
 
+# We use `Net::HTTP` to highlight code via <http://pygments.appspot.com>
+require 'net/http'
+
 # Code is run through [Pygments](http://pygments.org/) for syntax
-# highlighting. Fail fast right here if we can't find the `pygmentize`
-# program on PATH.
-if ! ENV['PATH'].split(':').any? { |dir| File.exist?("#{dir}/pygmentize") }
-  fail "Pygments is required for syntax highlighting"
+# highlighting. If it's not installed, locally, use a webservice.
+if `which pygmentize`.blank?
+  warn "WARNING: Pygments not found. Using webservice."
 end
 
 #### Public Interface
@@ -76,7 +78,10 @@ class Rocco
       else
         File.read(filename)
       end
-    defaults = { :language => 'ruby', :comment_chars => '#' }
+    defaults = {
+      :language      => 'ruby',
+      :comment_chars => '#',
+    }
     @options = defaults.merge(options)
     @sources = sources
     @comment_pattern = Regexp.new("^\\s*#{@options[:comment_chars]}")
@@ -157,15 +162,36 @@ class Rocco
       to_html.
       split(/\n*<h5>DIVIDER<\/h5>\n*/m)
 
-    # Combine all code blocks into a single big stream and run through
-    # Pygments. We `popen` a read/write pygmentize process in the parent and
-    # then fork off a child process to write the input.
+    # Combine all code blocks into a single big stream and run through either
+    # `pygmentize(1)` or <http://pygments.appspot.com>
+    code_stream = code_blocks.join("\n\n#{@options[:comment_chars]} DIVIDER\n\n")
+
+    if `which pygmentize`.blank?
+      code_html = highlight_webservice(code_stream)
+    else 
+      code_html = highlight_pygmentize(code_stream)
+    end
+
+    # Do some post-processing on the pygments output to split things back
+    # into sections and remove partial `<pre>` blocks.
+    code_html = code_html.
+      split(/\n*<span class="c.">#{@options[:comment_chars]} DIVIDER<\/span>\n*/m).
+      map { |code| code.sub(/\n?<div class="highlight"><pre>/m, '') }.
+      map { |code| code.sub(/\n?<\/pre><\/div>\n/m, '') }
+
+    # Lastly, combine the docs and code lists back into a list of two-tuples.
+    docs_html.zip(code_html)
+  end
+
+  # We `popen` a read/write pygmentize process in the parent and
+  # then fork off a child process to write the input.
+  def highlight_pygmentize(code)
     code_html = nil
     open("|pygmentize -l #{@options[:language]} -f html", 'r+') do |fd|
       pid =
         fork {
           fd.close_read
-          fd.write code_blocks.join("\n\n# DIVIDER\n\n")
+          fd.write code
           fd.close_write
           exit!
         }
@@ -175,15 +201,16 @@ class Rocco
       Process.wait(pid)
     end
 
-    # Do some post-processing on the pygments output to split things back
-    # into sections and remove partial `<pre>` blocks.
-    code_html = code_html.
-      split(/\n*<span class="c1"># DIVIDER<\/span>\n*/m).
-      map { |code| code.sub(/\n?<div class="highlight"><pre>/m, '') }.
-      map { |code| code.sub(/\n?<\/pre><\/div>\n/m, '') }
-
-    # Lastly, combine the docs and code lists back into a list of two-tuples.
-    docs_html.zip(code_html)
+    code_html
+  end
+  
+  # Pygments is not one of those things that's trivial for a ruby user to install,
+  # so we'll fall back on a webservice to highlight the code if it isn't available.
+  def highlight_webservice(code)
+    Net::HTTP.post_form(
+      URI.parse('http://pygments.appspot.com/'),
+      {'lang' => @options['language'], 'code' => code}
+    ).body
   end
 end
 
