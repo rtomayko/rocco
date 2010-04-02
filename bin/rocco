@@ -14,7 +14,7 @@ require 'fileutils'
 
 # Write usage message to stdout and exit.
 def usage(stream=$stderr, status=1)
-  stream.puts File.read(__FILE__).
+  stream.puts File.readlines(__FILE__).
     grep(/^#\//).
     map { |line| line.sub(/^#. ?/, '') }.
     join
@@ -35,8 +35,8 @@ options = {}
 ARGV.options { |o|
   o.program_name = File.basename($0)
   o.on("-o", "--output=DIR") { |dir| output_dir = dir }
-	o.on("-l", "--language=LANG") { |lang| options[:language] = lang }
-	o.on("-c", "--comment-chars=CHARS") { |chars| options[:comment_chars] = Regexp.escape(chars) }
+  o.on("-l", "--language=LANG") { |lang| options[:language] = lang }
+  o.on("-c", "--comment-chars=CHARS") { |chars| options[:comment_chars] = Regexp.escape(chars) }
   o.on_tail("-h", "--help") { usage($stdout, 0) }
   o.parse!
 } or abort_with_note
