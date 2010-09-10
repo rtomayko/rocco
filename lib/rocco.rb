@@ -69,7 +69,7 @@ end
 # means necessary and return it as a string. With no `block`, the file is read
 # to retrieve data.
 class Rocco
-  VERSION = '0.4'
+  VERSION = '0.5'
 
   def initialize(filename, sources=[], options={}, &block)
     @file = filename
