@@ -85,7 +85,7 @@ class Rocco
     }
     @options = defaults.merge(options)
     @sources = sources
-    @comment_pattern = Regexp.new("^\\s*#{@options[:comment_chars]}")
+    @comment_pattern = Regexp.new("^\\s*#{@options[:comment_chars]}\s?")
     @sections = highlight(split(parse(@data)))
   end
 
