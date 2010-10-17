@@ -3,8 +3,11 @@ require 'mustache'
 class Rocco::Layout < Mustache
   self.template_path = File.dirname(__FILE__)
 
-  def initialize(doc)
+  def initialize(doc, file=nil)
     @doc = doc
+    if not file.nil?
+      Rocco::Layout.template_file = file
+    end
   end
 
   def title
