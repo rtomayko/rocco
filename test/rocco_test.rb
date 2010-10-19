@@ -38,7 +38,7 @@ class RoccoBasicTests < Test::Unit::TestCase
         r = roccoize( "filename.rb", "# Comment 1\ndef codeblock\nend\n" )
         assert_equal 1, r.sections.length
         assert_equal 2, r.sections[ 0 ].length
-        assert_equal "<p> Comment 1</p>\n", r.sections[ 0 ][ 0 ]
+        assert_equal "<p>Comment 1</p>\n", r.sections[ 0 ][ 0 ]
         assert_equal "<span class=\"k\">def</span> <span class=\"nf\">codeblock</span>\n<span class=\"k\">end</span>", r.sections[ 0 ][ 1 ]
     end
 
@@ -63,14 +63,14 @@ class RoccoBasicTests < Test::Unit::TestCase
         r = Rocco.new( 'test' ) { "" } # Generate throwaway instance so I can test `split`
         assert_equal(
             [
-                [ " Comment 1" ],
+                [ "Comment 1" ],
                 [ "def codeblock\nend" ]
             ],
             r.split([ [ [ "# Comment 1" ], [ "def codeblock", "end" ] ] ])
         )
         assert_equal(
             [
-                [ " Comment 1", " Comment 2" ],
+                [ "Comment 1", "Comment 2" ],
                 [ "def codeblock", "end" ]
             ],
             r.split( [
@@ -148,6 +148,6 @@ class RoccoIssueTests < Test::Unit::TestCase
             !r.sections[0][0].include?( "<hr />" ),
             "`<hr />` present in rendered documentation text.  It should be a header, not text followed by a horizontal rule."
         )
-        assert_equal( "<h2>Comment 1</h2>", r.sections[0][0] )
+        assert_equal( "<h2>Comment 1</h2>\n", r.sections[0][0] )
     end
 end
