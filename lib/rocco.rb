@@ -85,7 +85,7 @@ class Rocco
     }
     @options = defaults.merge(options)
     @sources = sources
-    @comment_pattern = Regexp.new("^\\s*#{@options[:comment_chars]}")
+    @comment_pattern = Regexp.new("^\\s*#{@options[:comment_chars]}\s?")
     @sections = highlight(split(parse(@data)))
   end
 
@@ -176,7 +176,7 @@ class Rocco
     # Do some post-processing on the pygments output to split things back
     # into sections and remove partial `<pre>` blocks.
     code_html = code_html.
-      split(/\n*<span class="c.">#{@options[:comment_chars]} DIVIDER<\/span>\n*/m).
+      split(/\n*<span class="c.?">#{@options[:comment_chars]} DIVIDER<\/span>\n*/m).
       map { |code| code.sub(/\n?<div class="highlight"><pre>/m, '') }.
       map { |code| code.sub(/\n?<\/pre><\/div>\n/m, '') }
 
