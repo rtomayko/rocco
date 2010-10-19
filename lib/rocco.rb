@@ -194,7 +194,7 @@ class Rocco
   # then fork off a child process to write the input.
   def highlight_pygmentize(code)
     code_html = nil
-    open("|pygmentize -l #{@options[:language]} -f html", 'r+') do |fd|
+    open("|pygmentize -l #{@options[:language]} -O encoding=utf-8 -f html", 'r+') do |fd|
       pid =
         fork {
           fd.close_read

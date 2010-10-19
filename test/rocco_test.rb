@@ -101,10 +101,20 @@ class RoccoIssueTests < Test::Unit::TestCase
     def test_issue10_utf8_processing
         # Rocco has issues with strange UTF-8 characters: need to explicitly set the encoding for Pygments
         # http://github.com/rtomayko/rocco/issues#issue/10
-        r = Rocco.new( File.dirname(__FILE__) + "/fixtures/issue10.rb" )
+        r = Rocco.new( File.dirname(__FILE__) + "/fixtures/issue10.utf-8.rb" )
         assert_equal(
-            "<p> hello ąćęłńóśźż</p>\n",
-            r.sections[0][0]
+            "<p>hello ąćęłńóśźż</p>\n",
+            r.sections[0][0],
+            "UTF-8 input files ought behave correctly."
+        )
+        # and, just for grins, ensure that iso-8859-1 works too.
+        # @TODO:    Is this really the correct behavior?  Converting text
+        #           to UTF-8 on the way out is probably preferable.
+        r = Rocco.new( File.dirname(__FILE__) + "/fixtures/issue10.iso-8859-1.rb" )
+        assert_equal(
+            "<p>hello w\366rld</p>\n",
+            r.sections[0][0],
+            "ISO-8859-1 input should probably also behave correctly."
         )
     end
     def test_issue12_css_octothorpe_classname_change
