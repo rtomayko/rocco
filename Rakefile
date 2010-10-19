@@ -3,7 +3,7 @@ $LOAD_PATH.unshift 'lib'
 require 'rake/testtask'
 require 'rake/clean'
 
-task :default => [:sup, :docs]
+task :default => [:sup, :docs, :test]
 
 desc 'Holla'
 task :sup do
