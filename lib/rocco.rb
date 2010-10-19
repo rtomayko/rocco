@@ -82,10 +82,12 @@ class Rocco
     defaults = {
       :language      => 'ruby',
       :comment_chars => '#',
+      :template_file => nil
     }
     @options = defaults.merge(options)
     @sources = sources
     @comment_pattern = Regexp.new("^\\s*#{@options[:comment_chars]}\s?")
+    @template_file = @options[:template_file]
     @sections = highlight(split(parse(@data)))
   end
 
@@ -102,10 +104,14 @@ class Rocco
   # for building an index of other files.
   attr_reader :sources
 
+  # An absolute path to a file that ought be used as a template for the
+  # HTML-rendered documentation.
+  attr_reader :template_file
+
   # Generate HTML output for the entire document.
   require 'rocco/layout'
   def to_html
-    Rocco::Layout.new(self).render
+    Rocco::Layout.new(self, @template_file).render
   end
 
   #### Internal Parsing and Highlighting

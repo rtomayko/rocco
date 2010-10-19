@@ -3,8 +3,11 @@ require 'mustache'
 class Rocco::Layout < Mustache
   self.template_path = File.dirname(__FILE__)
 
-  def initialize(doc)
+  def initialize(doc, file=nil)
     @doc = doc
+    if not file.nil?
+      Rocco::Layout.template_file = file
+    end
   end
 
   def title
@@ -15,9 +18,15 @@ class Rocco::Layout < Mustache
     num = 0
     @doc.sections.map do |docs,code|
       {
-        :docs  => docs,
-        :code  => code,
-        :num   => (num += 1)
+        :docs       =>  docs,
+        :docs?      =>  !docs.empty?,
+        :header?    =>  /^<h.>.+<\/h.>$/.match( docs ),
+
+        :code       =>  code,
+        :code?      =>  !code.empty?,
+
+        :empty?     =>  ( code.empty? && docs.empty? ),
+        :num        =>  (num += 1)
       }
     end
   end
