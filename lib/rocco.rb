@@ -61,10 +61,18 @@ end
 
 # `Rocco.new` takes a source `filename`, an optional list of source filenames
 # for other documentation sources, an `options` hash, and an optional `block`.
-# The `options` hash respects two members: `:language`, which specifies which
-# Pygments lexer to use; and `:comment_chars`, which specifies the comment
-# characters of the target language. The options default to `'ruby'` and `'#'`,
-# respectively.
+# The `options` hash respects three members:
+#
+# *    `:language`: specifies which Pygments lexer to use if one can't be
+#      auto-detected from the filename.  _Defaults to `ruby`_.
+# 
+# *    `:comment_chars`, which specifies the comment characters of the
+#      target language. _Defaults to `#`_.
+#
+# *    `:template_file`, which specifies a external template file to use
+#      when rendering the final, highlighted file via Mustache.  _Defaults
+#      to `nil` (that is, Mustache will use `./lib/rocco/layout.mustache`)_.
+#
 # When `block` is given, it must read the contents of the file using whatever
 # means necessary and return it as a string. With no `block`, the file is read
 # to retrieve data.
@@ -88,11 +96,36 @@ class Rocco
     @sources = sources
     @comment_pattern = Regexp.new("^\\s*#{@options[:comment_chars]}\s?")
     @template_file = @options[:template_file]
+
+    @options[:language] = detect_language()
     @sections = highlight(split(parse(@data)))
+  end
+
+  # Returns `true` if `pygmentize` is available locally, `false` otherwise.
+  def pygmentize?
+    # Memoize the result, we'll call this a few times
+    @pygmentize ||= ENV['PATH'].split(':').any? { |dir| executable?("#{dir}/pygmentize") }
+  end
+
+  # If `pygmentize` is available, we can use it to autodetect a file's
+  # language based on its filename.  Filenames without extensions, or with
+  # extensions that `pygmentize` doesn't understand will return `text`.  In
+  # that case, we'll fallback to the user-provided `:language` option.
+  def detect_language
+    default = @options[:language]
+    if pygmentize?
+        lang = %x[pygmentize -N #{@file}].strip!
+        ( !lang || lang == "text" ) ? default : lang
+    else
+        default
+    end
   end
 
   # The filename as given to `Rocco.new`.
   attr_reader :file
+
+  # The merged options array
+  attr_reader :options
 
   # A list of two-tuples representing each *section* of the source file. Each
   # item in the list has the form: `[docs_html, code_html]`, where both
@@ -173,7 +206,7 @@ class Rocco
     # `pygmentize(1)` or <http://pygments.appspot.com>
     code_stream = code_blocks.join("\n\n#{@options[:comment_chars]} DIVIDER\n\n")
 
-    if ENV['PATH'].split(':').any? { |dir| executable?("#{dir}/pygmentize") }
+    if pygmentize? 
       code_html = highlight_pygmentize(code_stream)
     else 
       code_html = highlight_webservice(code_stream)
