@@ -61,18 +61,28 @@ end
 
 # `Rocco.new` takes a source `filename`, an optional list of source filenames
 # for other documentation sources, an `options` hash, and an optional `block`.
-# The `options` hash respects two members: `:language`, which specifies which
-# Pygments lexer to use; and `:comment_chars`, which specifies the comment
-# characters of the target language. The options default to `'ruby'` and `'#'`,
-# respectively.
-# When `block` is given, it must read the contents of the file using whatever
-# means necessary and return it as a string. With no `block`, the file is read
-# to retrieve data.
+# The `options` hash respects three members:
+#
+# *    `:language`: specifies which Pygments lexer to use if one can't be
+#      auto-detected from the filename.  _Defaults to `ruby`_.
+# 
+# *    `:comment_chars`, which specifies the comment characters of the
+#      target language. _Defaults to `#`_.
+#
+# *    `:template_file`, which specifies a external template file to use
+#      when rendering the final, highlighted file via Mustache.  _Defaults
+#      to `nil` (that is, Mustache will use `./lib/rocco/layout.mustache`)_.
+#
 class Rocco
   VERSION = '0.5'
 
   def initialize(filename, sources=[], options={}, &block)
-    @file = filename
+    @file       = filename
+    @sources    = sources
+
+    # When `block` is given, it must read the contents of the file using
+    # whatever means necessary and return it as a string. With no `block`,
+    # the file is read to retrieve data.
     @data =
       if block_given?
         yield
@@ -85,14 +95,103 @@ class Rocco
       :template_file => nil
     }
     @options = defaults.merge(options)
-    @sources = sources
-    @comment_pattern = Regexp.new("^\\s*#{@options[:comment_chars]}\s?")
     @template_file = @options[:template_file]
+
+    # If we detect a language
+    if detect_language() != "text"
+        # then assign the detected language to `:language`
+        @options[:language] = detect_language()
+        # and look for some comment characters
+        @options[:comment_chars]    = generate_comment_chars()
+    # If we didn't detect a language, but the user provided one, use it
+    # to look around for comment characters to override the default.
+    elsif @options[:language] != defaults[:language]
+        @options[:comment_chars]    = generate_comment_chars()
+    end
+    @comment_pattern            = Regexp.new("^\\s*#{@options[:comment_chars]}\s?")
+
     @sections = highlight(split(parse(@data)))
+  end
+
+  # Returns `true` if `pygmentize` is available locally, `false` otherwise.
+  def pygmentize?
+    # Memoize the result, we'll call this a few times
+    @_pygmentize ||= ENV['PATH'].split(':').any? { |dir| executable?("#{dir}/pygmentize") }
+  end
+
+  # If `pygmentize` is available, we can use it to autodetect a file's
+  # language based on its filename.  Filenames without extensions, or with
+  # extensions that `pygmentize` doesn't understand will return `text`.
+  # We'll also return `text` if `pygmentize` isn't available.
+  #
+  # We'll memoize the result, as we'll call this a few times.
+  def detect_language
+    @_language ||= begin
+        if pygmentize?
+            lang = %x[pygmentize -N #{@file}].strip!
+        else
+            "text"
+        end
+    end
+  end
+
+  # Given a file's language, we should be able to autopopulate the 
+  # `comment_chars` variables for single-line comments.  If we don't
+  # have comment characters on record for a given language, we'll
+  # use the user-provided `:comment_char` option (which defaults to
+  # `#`).
+  #
+  # Comment characters are listed as:
+  # 
+  #     { :single => "//", :multi_start => "/**", :multi_middle => "*", :multi_end => "*/" }
+  #
+  # `:single` denotes the leading character of a single-line comment.
+  # `:multi_start` denotes the string that should appear alone on a
+  # line of code to begin a block of documentation.  `:multi_middle`
+  # denotes the leading character of block comment content, and
+  # `:multi_end` is the string that ought appear alone on a line to
+  # close a block of documentation.  That is:
+  #
+  #     /**                 [:multi][:start]
+  #      *                  [:multi][:middle] 
+  #      *                  [:multi][:middle] 
+  #      *                  [:multi][:middle] 
+  #      */                 [:multi][:end]
+  #
+  # If a language only has one type of comment, the missing type
+  # should be assigned `nil`.
+  #
+  # At the moment, we're only returning `:single`.  Consider this
+  # groundwork for block comment parsing.
+  def generate_comment_chars
+    @_commentchar ||= begin
+        language        = @options[:language]
+        comment_styles  = {
+            "bash"          =>  { :single => "#",   :multi => nil },
+            "c"             =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
+            "coffee-script" =>  { :single => "#",   :multi => { :start => "###", :middle => nil, :end => "###" } },
+            "cpp"           =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
+            "java"          =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
+            "js"            =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
+            "lua"           =>  { :single => "--",  :multi => nil },
+            "python"        =>  { :single => "#",   :multi => { :start => '"""', :middle => nil, :end => '"""' } },
+            "ruby"          =>  { :single => "#",   :multi => nil },
+            "scheme"        =>  { :single => ";;",  :multi => nil },
+        }
+        
+        if comment_styles[language]
+            comment_styles[language][:single]
+        else
+            @options[:comment_chars]
+        end
+    end
   end
 
   # The filename as given to `Rocco.new`.
   attr_reader :file
+
+  # The merged options array
+  attr_reader :options
 
   # A list of two-tuples representing each *section* of the source file. Each
   # item in the list has the form: `[docs_html, code_html]`, where both
@@ -173,7 +272,7 @@ class Rocco
     # `pygmentize(1)` or <http://pygments.appspot.com>
     code_stream = code_blocks.join("\n\n#{@options[:comment_chars]} DIVIDER\n\n")
 
-    if ENV['PATH'].split(':').any? { |dir| executable?("#{dir}/pygmentize") }
+    if pygmentize? 
       code_html = highlight_pygmentize(code_stream)
     else 
       code_html = highlight_webservice(code_stream)
@@ -216,7 +315,7 @@ class Rocco
   def highlight_webservice(code)
     Net::HTTP.post_form(
       URI.parse('http://pygments.appspot.com/'),
-      {'lang' => @options['language'], 'code' => code}
+      {'lang' => @options[:language], 'code' => code}
     ).body
   end
 end

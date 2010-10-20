@@ -82,6 +82,53 @@ class RoccoBasicTests < Test::Unit::TestCase
 
 end
 
+class RoccoLanguageDetection < Test::Unit::TestCase
+    def test_basic_detection
+        r = Rocco.new( 'filename.py' ) { "" }
+        if r.pygmentize?
+            assert_equal "python", r.detect_language(), "`detect_language()` should return the correct language"
+            assert_equal "python", r.options[:language], "`@options[:language]` should be set to the correct language"
+        end
+    end
+    def test_fallback_default
+        r = Rocco.new( 'filename.an_extension_with_no_meaning_whatsoever' ) { "" }
+        if r.pygmentize?
+            assert_equal "text", r.detect_language(), "`detect_language()` should return `text` when nothing else is detected"
+            assert_equal "ruby", r.options[:language], "`@options[:language]` should be set to `ruby` when nothing else is detected"
+        end
+    end
+    def test_fallback_user
+        r = Rocco.new( 'filename.an_extension_with_no_meaning_whatsoever', '', { :language => "c" } ) { "" }
+        if r.pygmentize?
+            assert_equal "text", r.detect_language(), "`detect_language()` should return `text` nothing else is detected"
+            assert_equal "c", r.options[:language], "`@options[:language]` should be set to the user's setting when nothing else is detected"
+        end
+    end
+end
+
+class RoccoAutomaticCommentChars < Test::Unit::TestCase
+    def test_basic_detection
+        r = Rocco.new( 'filename.js' ) { "" }
+        assert_equal "//", r.options[:comment_chars]
+    end
+    def test_fallback_language
+        r = Rocco.new( 'filename.an_extension_with_no_meaning_whatsoever', '', { :language => "js" } ) { "" }
+        assert_equal "//", r.options[:comment_chars]
+    end
+    def test_fallback_default
+        r = Rocco.new( 'filename.an_extension_with_no_meaning_whatsoever' ) { "" }
+        assert_equal "#", r.options[:comment_chars], "`:comment_chars` should be `#` when falling back to defaults."
+    end
+    def test_fallback_user
+        r = Rocco.new( 'filename.an_extension_with_no_meaning_whatsoever', '', { :comment_chars => "user" } ) { "" }
+        assert_equal "user", r.options[:comment_chars], "`:comment_chars` should be the user's default when falling back to user-provided settings."
+    end
+    def test_fallback_user_with_unknown_language
+        r = Rocco.new( 'filename.an_extension_with_no_meaning_whatsoever', '', { :language => "not-a-language", :comment_chars => "user" } ) { "" }
+        assert_equal "user", r.options[:comment_chars], "`:comment_chars` should be the user's default when falling back to user-provided settings."
+    end
+end
+
 class RoccoIssueTests < Test::Unit::TestCase
     def test_issue07_incorrect_parsing_in_c_mode
         # Precursor to issue #13 below, Rocco incorrectly parsed C/C++
