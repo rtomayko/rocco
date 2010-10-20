@@ -73,14 +73,16 @@ end
 #      when rendering the final, highlighted file via Mustache.  _Defaults
 #      to `nil` (that is, Mustache will use `./lib/rocco/layout.mustache`)_.
 #
-# When `block` is given, it must read the contents of the file using whatever
-# means necessary and return it as a string. With no `block`, the file is read
-# to retrieve data.
 class Rocco
   VERSION = '0.5'
 
   def initialize(filename, sources=[], options={}, &block)
-    @file = filename
+    @file       = filename
+    @sources    = sources
+
+    # When `block` is given, it must read the contents of the file using
+    # whatever means necessary and return it as a string. With no `block`,
+    # the file is read to retrieve data.
     @data =
       if block_given?
         yield
@@ -93,31 +95,95 @@ class Rocco
       :template_file => nil
     }
     @options = defaults.merge(options)
-    @sources = sources
-    @comment_pattern = Regexp.new("^\\s*#{@options[:comment_chars]}\s?")
     @template_file = @options[:template_file]
 
-    @options[:language] = detect_language()
+    # If we detect a language
+    if detect_language() != "text"
+        # then assign the detected language to `:language`
+        @options[:language] = detect_language()
+        # and look for some comment characters
+        @options[:comment_chars]    = generate_comment_chars()
+    # If we didn't detect a language, but the user provided one, use it
+    # to look around for comment characters to override the default.
+    elsif @options[:language] != defaults[:language]
+        @options[:comment_chars]    = generate_comment_chars()
+    end
+    @comment_pattern            = Regexp.new("^\\s*#{@options[:comment_chars]}\s?")
+
     @sections = highlight(split(parse(@data)))
   end
 
   # Returns `true` if `pygmentize` is available locally, `false` otherwise.
   def pygmentize?
     # Memoize the result, we'll call this a few times
-    @pygmentize ||= ENV['PATH'].split(':').any? { |dir| executable?("#{dir}/pygmentize") }
+    @_pygmentize ||= ENV['PATH'].split(':').any? { |dir| executable?("#{dir}/pygmentize") }
   end
 
   # If `pygmentize` is available, we can use it to autodetect a file's
   # language based on its filename.  Filenames without extensions, or with
-  # extensions that `pygmentize` doesn't understand will return `text`.  In
-  # that case, we'll fallback to the user-provided `:language` option.
+  # extensions that `pygmentize` doesn't understand will return `text`.
+  # We'll also return `text` if `pygmentize` isn't available.
+  #
+  # We'll memoize the result, as we'll call this a few times.
   def detect_language
-    default = @options[:language]
-    if pygmentize?
-        lang = %x[pygmentize -N #{@file}].strip!
-        ( !lang || lang == "text" ) ? default : lang
-    else
-        default
+    @_language ||= begin
+        if pygmentize?
+            lang = %x[pygmentize -N #{@file}].strip!
+        else
+            "text"
+        end
+    end
+  end
+
+  # Given a file's language, we should be able to autopopulate the 
+  # `comment_chars` variables for single-line comments.  If we don't
+  # have comment characters on record for a given language, we'll
+  # use the user-provided `:comment_char` option (which defaults to
+  # `#`).
+  #
+  # Comment characters are listed as:
+  # 
+  #     { :single => "//", :multi_start => "/**", :multi_middle => "*", :multi_end => "*/" }
+  #
+  # `:single` denotes the leading character of a single-line comment.
+  # `:multi_start` denotes the string that should appear alone on a
+  # line of code to begin a block of documentation.  `:multi_middle`
+  # denotes the leading character of block comment content, and
+  # `:multi_end` is the string that ought appear alone on a line to
+  # close a block of documentation.  That is:
+  #
+  #     /**                 [:multi][:start]
+  #      *                  [:multi][:middle] 
+  #      *                  [:multi][:middle] 
+  #      *                  [:multi][:middle] 
+  #      */                 [:multi][:end]
+  #
+  # If a language only has one type of comment, the missing type
+  # should be assigned `nil`.
+  #
+  # At the moment, we're only returning `:single`.  Consider this
+  # groundwork for block comment parsing.
+  def generate_comment_chars
+    @_commentchar ||= begin
+        language        = @options[:language]
+        comment_styles  = {
+            "bash"          =>  { :single => "#",   :multi => nil },
+            "c"             =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
+            "coffee-script" =>  { :single => "#",   :multi => { :start => "###", :middle => nil, :end => "###" } },
+            "cpp"           =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
+            "java"          =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
+            "js"            =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
+            "lua"           =>  { :single => "--",  :multi => nil },
+            "python"        =>  { :single => "#",   :multi => { :start => '"""', :middle => nil, :end => '"""' } },
+            "ruby"          =>  { :single => "#",   :multi => nil },
+            "scheme"        =>  { :single => ";;",  :multi => nil },
+        }
+        
+        if comment_styles[language]
+            comment_styles[language][:single]
+        else
+            @options[:comment_chars]
+        end
     end
   end
 
