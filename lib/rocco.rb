@@ -95,28 +95,62 @@ class Rocco
       :template_file => nil
     }
     @options = defaults.merge(options)
-    @template_file = @options[:template_file]
 
     # If we detect a language
     if detect_language() != "text"
-        # then assign the detected language to `:language`
-        @options[:language] = detect_language()
-        # and look for some comment characters
-        @options[:comment_chars]    = generate_comment_chars()
+      # then assign the detected language to `:language`, and look for
+      # comment characters based on that language
+      @options[:language] = detect_language()
+      @options[:comment_chars]    = generate_comment_chars()
+
     # If we didn't detect a language, but the user provided one, use it
     # to look around for comment characters to override the default.
     elsif @options[:language] != defaults[:language]
-        @options[:comment_chars]    = generate_comment_chars()
+      @options[:comment_chars]    = generate_comment_chars()
     end
+
+    # Turn `:comment_chars` into a regex matching a series of spaces, the 
+    # `:comment_chars` string, and the an optional space.  We'll use that
+    # to detect single-line comments.
     @comment_pattern            = Regexp.new("^\\s*#{@options[:comment_chars]}\s?")
 
+    # `parse()` the file contents stored in `@data`.  Run the result through `split()`
+    # and that result through `highlight()` to generate the final section list.
     @sections = highlight(split(parse(@data)))
   end
 
+  # The filename as given to `Rocco.new`.
+  attr_reader :file
+
+  # The merged options array
+  attr_reader :options
+
+  # A list of two-tuples representing each *section* of the source file. Each
+  # item in the list has the form: `[docs_html, code_html]`, where both
+  # elements are strings containing the documentation and source code HTML,
+  # respectively.
+  attr_reader :sections
+
+  # A list of all source filenames included in the documentation set. Useful
+  # for building an index of other files.
+  attr_reader :sources
+
+  # Generate HTML output for the entire document.
+  require 'rocco/layout'
+  def to_html
+    Rocco::Layout.new(self, @options[:template_file]).render
+  end
+
+  # Helper Functions
+  # ----------------
+
   # Returns `true` if `pygmentize` is available locally, `false` otherwise.
   def pygmentize?
-    # Memoize the result, we'll call this a few times
-    @_pygmentize ||= ENV['PATH'].split(':').any? { |dir| executable?("#{dir}/pygmentize") }
+    # Memoize the result
+    if @_pygmentize.nil?
+      @_pygmentize = ENV['PATH'].split(':').any? { |dir| executable?("#{dir}/pygmentize") }
+    end
+    @_pygmentize
   end
 
   # If `pygmentize` is available, we can use it to autodetect a file's
@@ -154,7 +188,7 @@ class Rocco
   #
   #     /**                 [:multi][:start]
   #      *                  [:multi][:middle] 
-  #      *                  [:multi][:middle] 
+  #      ...
   #      *                  [:multi][:middle] 
   #      */                 [:multi][:end]
   #
@@ -165,55 +199,30 @@ class Rocco
   # groundwork for block comment parsing.
   def generate_comment_chars
     @_commentchar ||= begin
-        language        = @options[:language]
-        comment_styles  = {
-            "bash"          =>  { :single => "#",   :multi => nil },
-            "c"             =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
-            "coffee-script" =>  { :single => "#",   :multi => { :start => "###", :middle => nil, :end => "###" } },
-            "cpp"           =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
-            "java"          =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
-            "js"            =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
-            "lua"           =>  { :single => "--",  :multi => nil },
-            "python"        =>  { :single => "#",   :multi => { :start => '"""', :middle => nil, :end => '"""' } },
-            "ruby"          =>  { :single => "#",   :multi => nil },
-            "scheme"        =>  { :single => ";;",  :multi => nil },
-        }
+      language        = @options[:language]
+      comment_styles  = {
+        "bash"          =>  { :single => "#",   :multi => nil },
+        "c"             =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
+        "coffee-script" =>  { :single => "#",   :multi => { :start => "###", :middle => nil, :end => "###" } },
+        "cpp"           =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
+        "java"          =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
+        "js"            =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
+        "lua"           =>  { :single => "--",  :multi => nil },
+        "python"        =>  { :single => "#",   :multi => { :start => '"""', :middle => nil, :end => '"""' } },
+        "ruby"          =>  { :single => "#",   :multi => nil },
+        "scheme"        =>  { :single => ";;",  :multi => nil },
+      }
         
-        if comment_styles[language]
-            comment_styles[language][:single]
-        else
-            @options[:comment_chars]
-        end
+      if comment_styles[language]
+        comment_styles[language][:single]
+      else
+        @options[:comment_chars]
+      end
     end
   end
 
-  # The filename as given to `Rocco.new`.
-  attr_reader :file
-
-  # The merged options array
-  attr_reader :options
-
-  # A list of two-tuples representing each *section* of the source file. Each
-  # item in the list has the form: `[docs_html, code_html]`, where both
-  # elements are strings containing the documentation and source code HTML,
-  # respectively.
-  attr_reader :sections
-
-  # A list of all source filenames included in the documentation set. Useful
-  # for building an index of other files.
-  attr_reader :sources
-
-  # An absolute path to a file that ought be used as a template for the
-  # HTML-rendered documentation.
-  attr_reader :template_file
-
-  # Generate HTML output for the entire document.
-  require 'rocco/layout'
-  def to_html
-    Rocco::Layout.new(self, @template_file).render
-  end
-
-  #### Internal Parsing and Highlighting
+  # Internal Parsing and Highlighting
+  # ---------------------------------
 
   # Parse the raw file data into a list of two-tuples. Each tuple has the
   # form `[docs, code]` where both elements are arrays containing the
