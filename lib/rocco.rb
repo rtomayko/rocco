@@ -209,7 +209,7 @@ class Rocco
         "js"            =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
         "lua"           =>  { :single => "--",  :multi => nil },
         "python"        =>  { :single => "#",   :multi => { :start => '"""', :middle => nil, :end => '"""' } },
-        "ruby"          =>  { :single => "#",   :multi => nil },
+        "rb"            =>  { :single => "#",   :multi => nil },
         "scheme"        =>  { :single => ";;",  :multi => nil },
       }
         
@@ -227,12 +227,14 @@ class Rocco
   # Parse the raw file data into a list of two-tuples. Each tuple has the
   # form `[docs, code]` where both elements are arrays containing the
   # raw lines parsed from the input file. The first line is ignored if it
-  # is a shebang line.
+  # is a shebang line.  We also ignore the PEP 263 encoding information in
+  # python sourcefiles, and the similar ruby 1.9 syntax.
   def parse(data)
     sections = []
     docs, code = [], []
     lines = data.split("\n")
     lines.shift if lines[0] =~ /^\#\!/
+    lines.shift if lines[0] =~ /coding[:=]\s*[-\w.]+/ and [ "python", "rb" ].include? @options[:language]
     lines.each do |line|
       case line
       when @comment_pattern
