@@ -38,9 +38,9 @@ class Rocco::Layout < Mustache
   def sources
     @doc.sources.sort.map do |source|
       {
-        :path => source,
-        :basename => File.basename(source),
-        :url => File.basename(source).split('.')[0..-2].join('.') + '.html'
+        :path       => source,
+        :basename   => File.basename(source),
+        :url        => source.sub( Regexp.new( "#{File.extname(source)}$"), ".html" )
       }
     end
   end

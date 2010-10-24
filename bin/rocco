@@ -90,7 +90,7 @@ end
 # Run each file through Rocco and write output.
 sources.each do |filename|
   rocco = Rocco.new(filename, sources, options)
-  dest = File.join(output_dir, (filename.split('.')[0..-2].empty? ? filename : filename.split('.')[0..-2].join('.')) + '.html')
+  dest = File.join(output_dir, filename.sub(Regexp.new("#{File.extname(filename)}$"),".html"))
   puts "rocco: #{filename} -> #{dest}"
   FileUtils.mkdir_p File.dirname(dest)
   File.open(dest, 'wb') { |fd| fd.write(rocco.to_html) }

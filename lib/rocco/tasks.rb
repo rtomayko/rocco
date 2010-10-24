@@ -70,7 +70,7 @@ class Rocco
       # Run over the source file list, constructing destination filenames
       # and defining file tasks.
       @sources.each do |source_file|
-        dest_file = File.basename(source_file).split('.')[0..-2].join('.') + '.html'
+        dest_file = source_file.sub(Regexp.new("#{File.extname(source_file)}$"), ".html")
         define_file_task source_file, "#{@dest}#{dest_file}"
 
         # If `rake/clean` was required, add the generated files to the list.
@@ -103,6 +103,7 @@ class Rocco
       file dest_file => prerequisites do |f|
         verbose { puts "rocco: #{source_file} -> #{dest_file}" }
         rocco = Rocco.new(source_file, @sources.to_a, @options)
+        FileUtils.mkdir_p(File.dirname(dest_file))
         File.open(dest_file, 'wb') { |fd| fd.write(rocco.to_html) }
       end
       task @name => dest_file
