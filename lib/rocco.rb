@@ -100,19 +100,25 @@ class Rocco
     if detect_language() != "text"
       # then assign the detected language to `:language`, and look for
       # comment characters based on that language
-      @options[:language] = detect_language()
+      @options[:language]         = detect_language()
       @options[:comment_chars]    = generate_comment_chars()
 
     # If we didn't detect a language, but the user provided one, use it
     # to look around for comment characters to override the default.
     elsif @options[:language] != defaults[:language]
       @options[:comment_chars]    = generate_comment_chars()
+
+    # If neither is true, then convert the default comment character string
+    # into the comment_char syntax (we'll discuss that syntax in detail when
+    # we get to `generate_comment_chars()` in a moment.
+    else
+      @options[:comment_chars]    = { :single => @options[:comment_chars], :multi => "" }
     end
 
     # Turn `:comment_chars` into a regex matching a series of spaces, the 
     # `:comment_chars` string, and the an optional space.  We'll use that
     # to detect single-line comments.
-    @comment_pattern            = Regexp.new("^\\s*#{@options[:comment_chars]}\s?")
+    @comment_pattern            = Regexp.new("^\\s*#{@options[:comment_chars][:single]}\s?")
 
     # `parse()` the file contents stored in `@data`.  Run the result through `split()`
     # and that result through `highlight()` to generate the final section list.
@@ -214,9 +220,9 @@ class Rocco
       }
         
       if comment_styles[language]
-        comment_styles[language][:single]
+        comment_styles[language]
       else
-        @options[:comment_chars]
+        { :single => @options[:comment_chars], :multi => nil }
       end
     end
   end
@@ -281,7 +287,7 @@ class Rocco
 
     # Combine all code blocks into a single big stream and run through either
     # `pygmentize(1)` or <http://pygments.appspot.com>
-    code_stream = code_blocks.join("\n\n#{@options[:comment_chars]} DIVIDER\n\n")
+    code_stream = code_blocks.join("\n\n#{@options[:comment_chars][:single]} DIVIDER\n\n")
 
     if pygmentize? 
       code_html = highlight_pygmentize(code_stream)
@@ -292,7 +298,7 @@ class Rocco
     # Do some post-processing on the pygments output to split things back
     # into sections and remove partial `<pre>` blocks.
     code_html = code_html.
-      split(/\n*<span class="c.?">#{@options[:comment_chars]} DIVIDER<\/span>\n*/m).
+      split(/\n*<span class="c.?">#{@options[:comment_chars][:single]} DIVIDER<\/span>\n*/m).
       map { |code| code.sub(/\n?<div class="highlight"><pre>/m, '') }.
       map { |code| code.sub(/\n?<\/pre><\/div>\n/m, '') }
 
