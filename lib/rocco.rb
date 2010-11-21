@@ -202,14 +202,14 @@ class Rocco
       language        = @options[:language]
       comment_styles  = {
         "bash"          =>  { :single => "#",   :multi => nil },
-        "c"             =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
-        "coffee-script" =>  { :single => "#",   :multi => { :start => "###", :middle => nil, :end => "###" } },
-        "cpp"           =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
-        "java"          =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
-        "js"            =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
+        "c"             =>  { :single => "//",  :multi => { :start => "/**",    :middle => "*", :end => "*/" } },
+        "coffee-script" =>  { :single => "#",   :multi => { :start => "###",    :middle => nil, :end => "###" } },
+        "cpp"           =>  { :single => "//",  :multi => { :start => "/**",    :middle => "*", :end => "*/" } },
+        "java"          =>  { :single => "//",  :multi => { :start => "/**",    :middle => "*", :end => "*/" } },
+        "js"            =>  { :single => "//",  :multi => { :start => "/**",    :middle => "*", :end => "*/" } },
         "lua"           =>  { :single => "--",  :multi => nil },
-        "python"        =>  { :single => "#",   :multi => { :start => '"""', :middle => nil, :end => '"""' } },
-        "rb"            =>  { :single => "#",   :multi => nil },
+        "python"        =>  { :single => "#",   :multi => { :start => '"""',    :middle => nil, :end => '"""' } },
+        "rb"            =>  { :single => "#",   :multi => { :start => '=begin', :middle => nil, :end => '=end' } },
         "scheme"        =>  { :single => ";;",  :multi => nil },
       }
         
