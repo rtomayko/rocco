@@ -247,15 +247,16 @@ class Rocco
     # This requires an `in_comment_block` boolean, and a few regular 
     # expressions for line tests.
     in_comment_block    = false
-    single_line_comment, block_comment_start, block_comment_end = nil, nil, nil
+    single_line_comment, block_comment_start, block_comment_mid, block_comment_end = nil, nil, nil, nil
     if not @options[:comment_chars][:single].nil?
-      single_line_comment = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:single])}\s?")
+      single_line_comment = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:single])}\\s?")
     end
     if not @options[:comment_chars][:multi].nil?
-      require 'pp'
-      pp @options[:comment_chars]
-      block_comment_start = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:multi][:start])}\s*$")
-      block_comment_end   = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:multi][:end])}\s*$")
+      block_comment_start = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:multi][:start])}\\s*$")
+      block_comment_end   = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:multi][:end])}\\s*$")
+      if @options[:comment_chars][:multi][:middle]
+        block_comment_mid = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:multi][:middle])}\\s?")
+      end
     end
     lines.each do |line|
       # If we're currently in a comment block, check whether the line matches
@@ -264,7 +265,7 @@ class Rocco
         if block_comment_end && line.match( block_comment_end )
           in_comment_block = false
         else
-          docs << line
+          docs << line.sub( block_comment_mid, '' )
         end
       # Otherwise, check whether the line matches the beginning of a block, or
       # a single-line comment all on it's lonesome.  In either case, if there's
@@ -281,7 +282,7 @@ class Rocco
             sections << [docs, code]
             docs, code = [], []
           end
-          docs << line
+          docs << line.sub( single_line_comment, '' )
         else
           code << line
         end
@@ -297,7 +298,7 @@ class Rocco
   def split(sections)
     docs_blocks, code_blocks = [], []
     sections.each do |docs,code|
-      docs_blocks << docs.map { |line| line.sub(@comment_pattern, '') }.join("\n")
+      docs_blocks << docs.join("\n")
       code_blocks << code.map do |line|
         tabs = line.match(/^(\t+)/)
         tabs ? line.sub(/^\t+/, '  ' * tabs.captures[0].length) : line

@@ -27,14 +27,14 @@ class RoccoBasicTests < Test::Unit::TestCase
         r = Rocco.new( 'test' ) { "" } # Generate throwaway instance so I can test `parse`
         assert_equal(
             [
-                [ [ "# Comment 1" ], [ "def codeblock", "end" ] ]
+                [ [ "Comment 1" ], [ "def codeblock", "end" ] ]
             ],
             r.parse( "# Comment 1\ndef codeblock\nend\n" )
         )
         assert_equal(
             [
-                [ [ "# Comment 1" ], [ "def codeblock" ] ],
-                [ [ "# Comment 2" ], [ "end" ] ]
+                [ [ "Comment 1" ], [ "def codeblock" ] ],
+                [ [ "Comment 2" ], [ "end" ] ]
             ],
             r.parse( "# Comment 1\ndef codeblock\n# Comment 2\nend\n" )
         )
@@ -47,7 +47,7 @@ class RoccoBasicTests < Test::Unit::TestCase
                 [ "Comment 1" ],
                 [ "def codeblock\nend" ]
             ],
-            r.split([ [ [ "# Comment 1" ], [ "def codeblock", "end" ] ] ])
+            r.split([ [ [ "Comment 1" ], [ "def codeblock", "end" ] ] ])
         )
         assert_equal(
             [
@@ -55,8 +55,8 @@ class RoccoBasicTests < Test::Unit::TestCase
                 [ "def codeblock", "end" ]
             ],
             r.split( [
-                [ [ "# Comment 1" ], [ "def codeblock" ] ],
-                [ [ "# Comment 2" ], [ "end" ] ]
+                [ [ "Comment 1" ], [ "def codeblock" ] ],
+                [ [ "Comment 2" ], [ "end" ] ]
             ] )
         )
     end

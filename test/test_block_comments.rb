@@ -5,13 +5,13 @@ class RoccoBlockCommentTest < Test::Unit::TestCase
         r = Rocco.new( 'test', '', { :language => "c" } ) { "" } # Generate throwaway instance so I can test `parse`
         assert_equal(
             [
-                [ [ " * Comment 1" ], [ "def codeblock", "end" ] ]
+                [ [ "Comment 1" ], [ "def codeblock", "end" ] ]
             ],
             r.parse( "/**\n * Comment 1\n*/\ndef codeblock\nend\n" )
         )
         assert_equal(
             [
-                [ [ " * Comment 1a", " * Comment 1b" ], [ "def codeblock", "end" ] ]
+                [ [ "Comment 1a", "Comment 1b" ], [ "def codeblock", "end" ] ]
             ],
             r.parse( "/**\n * Comment 1a\n * Comment 1b\n*/\ndef codeblock\nend\n" )
         )
@@ -20,15 +20,15 @@ class RoccoBlockCommentTest < Test::Unit::TestCase
         r = Rocco.new( 'test', '', { :language => "c" } ) { "" } # Generate throwaway instance so I can test `parse`
         assert_equal(
             [
-                [ [ " * Comment 1" ], [ "def codeblock", "end" ] ],
-                [ [ " * Comment 2" ], [] ]
+                [ [ "Comment 1" ], [ "def codeblock", "end" ] ],
+                [ [ "Comment 2" ], [] ]
             ],
             r.parse( "/**\n * Comment 1\n*/\ndef codeblock\nend\n/**\n * Comment 2\n*/\n" )
         )
         assert_equal(
             [
-                [ [ " * Comment 1" ], [ "def codeblock", "end" ] ],
-                [ [ " * Comment 2" ], [ "if false", "end" ] ]
+                [ [ "Comment 1" ], [ "def codeblock", "end" ] ],
+                [ [ "Comment 2" ], [ "if false", "end" ] ]
             ],
             r.parse( "/**\n * Comment 1\n*/\ndef codeblock\nend\n/**\n * Comment 2\n*/\nif false\nend" )
         )
