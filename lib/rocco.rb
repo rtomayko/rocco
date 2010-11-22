@@ -112,7 +112,7 @@ class Rocco
     # into the comment_char syntax (we'll discuss that syntax in detail when
     # we get to `generate_comment_chars()` in a moment.
     else
-      @options[:comment_chars]    = { :single => @options[:comment_chars], :multi => "" }
+      @options[:comment_chars]    = { :single => @options[:comment_chars], :multi => nil }
     end
 
     # Turn `:comment_chars` into a regex matching a series of spaces, the 
@@ -241,16 +241,50 @@ class Rocco
     lines = data.split("\n")
     lines.shift if lines[0] =~ /^\#\!/
     lines.shift if lines[0] =~ /coding[:=]\s*[-\w.]+/ and [ "python", "rb" ].include? @options[:language]
+
+    # To detect both block comments and single-line comments, we'll set
+    # up a tiny state machine, and loop through each line of the file.
+    # This requires an `in_comment_block` boolean, and a few regular 
+    # expressions for line tests.
+    in_comment_block    = false
+    single_line_comment, block_comment_start, block_comment_end = nil, nil, nil
+    if not @options[:comment_chars][:single].nil?
+      single_line_comment = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:single])}\s?")
+    end
+    if not @options[:comment_chars][:multi].nil?
+      require 'pp'
+      pp @options[:comment_chars]
+      block_comment_start = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:multi][:start])}\s*$")
+      block_comment_end   = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:multi][:end])}\s*$")
+    end
     lines.each do |line|
-      case line
-      when @comment_pattern
-        if code.any?
-          sections << [docs, code]
-          docs, code = [], []
+      # If we're currently in a comment block, check whether the line matches
+      # the _end_ of a comment block.
+      if in_comment_block
+        if block_comment_end && line.match( block_comment_end )
+          in_comment_block = false
+        else
+          docs << line
         end
-        docs << line
+      # Otherwise, check whether the line matches the beginning of a block, or
+      # a single-line comment all on it's lonesome.  In either case, if there's
+      # code, start a new section
       else
-        code << line
+        if block_comment_start && line.match( block_comment_start )
+          in_comment_block = true
+          if code.any?
+            sections << [docs, code]
+            docs, code = [], []
+          end
+        elsif single_line_comment && line.match( single_line_comment )
+          if code.any?
+            sections << [docs, code]
+            docs, code = [], []
+          end
+          docs << line
+        else
+          code << line
+        end
       end
     end
     sections << [docs, code] if docs.any? || code.any?
