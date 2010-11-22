@@ -233,13 +233,15 @@ class Rocco
 
   # Parse the raw file data into a list of two-tuples. Each tuple has the
   # form `[docs, code]` where both elements are arrays containing the
-  # raw lines parsed from the input file. The first line is ignored if it
-  # is a shebang line.  We also ignore the PEP 263 encoding information in
-  # python sourcefiles, and the similar ruby 1.9 syntax.
+  # raw lines parsed from the input file, comment characters stripped.
   def parse(data)
     sections = []
     docs, code = [], []
     lines = data.split("\n")
+
+    # The first line is ignored if it is a shebang line.  We also ignore the
+    # PEP 263 encoding information in python sourcefiles, and the similar ruby
+    # 1.9 syntax.
     lines.shift if lines[0] =~ /^\#\!/
     lines.shift if lines[0] =~ /coding[:=]\s*[-\w.]+/ and [ "python", "rb" ].include? @options[:language]
 
@@ -290,7 +292,32 @@ class Rocco
       end
     end
     sections << [docs, code] if docs.any? || code.any?
-    sections
+    normalize_leading_spaces( sections )
+  end
+
+  # Normalizes documentation whitespace by checking for leading whitespace,
+  # removing it, and then removing the same amount of whitespace from each
+  # succeeding line.  That is:
+  #
+  #     def func():
+  #       """
+  #         Comment 1
+  #         Comment 2
+  #       """
+  #       print "omg!"
+  #
+  # should yield a comment block of `Comment 1\nComment 2` and code of
+  # `def func():\n  print "omg!"`
+  def normalize_leading_spaces( sections )
+    sections.map do |section|
+      if section[ 0 ]
+        leading_space = section[0][0].match( "^\s+" )
+        if leading_space
+          section[0] = section[0].map{ |line| line.sub( /^#{leading_space.to_s}/, '' ) }
+        end
+      end
+      section
+    end
   end
 
   # Take the list of paired *sections* two-tuples and split into two
