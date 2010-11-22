@@ -100,19 +100,25 @@ class Rocco
     if detect_language() != "text"
       # then assign the detected language to `:language`, and look for
       # comment characters based on that language
-      @options[:language] = detect_language()
+      @options[:language]         = detect_language()
       @options[:comment_chars]    = generate_comment_chars()
 
     # If we didn't detect a language, but the user provided one, use it
     # to look around for comment characters to override the default.
     elsif @options[:language] != defaults[:language]
       @options[:comment_chars]    = generate_comment_chars()
+
+    # If neither is true, then convert the default comment character string
+    # into the comment_char syntax (we'll discuss that syntax in detail when
+    # we get to `generate_comment_chars()` in a moment.
+    else
+      @options[:comment_chars]    = { :single => @options[:comment_chars], :multi => nil }
     end
 
     # Turn `:comment_chars` into a regex matching a series of spaces, the 
     # `:comment_chars` string, and the an optional space.  We'll use that
     # to detect single-line comments.
-    @comment_pattern            = Regexp.new("^\\s*#{@options[:comment_chars]}\s?")
+    @comment_pattern            = Regexp.new("^\\s*#{@options[:comment_chars][:single]}\s?")
 
     # `parse()` the file contents stored in `@data`.  Run the result through `split()`
     # and that result through `highlight()` to generate the final section list.
@@ -202,21 +208,22 @@ class Rocco
       language        = @options[:language]
       comment_styles  = {
         "bash"          =>  { :single => "#",   :multi => nil },
-        "c"             =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
-        "coffee-script" =>  { :single => "#",   :multi => { :start => "###", :middle => nil, :end => "###" } },
-        "cpp"           =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
-        "java"          =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
-        "js"            =>  { :single => "//",  :multi => { :start => "/**", :middle => "*", :end => "*/" } },
+        "c"             =>  { :single => "//",  :multi => { :start => "/**",    :middle => "*", :end => "*/" } },
+        "coffee-script" =>  { :single => "#",   :multi => { :start => "###",    :middle => nil, :end => "###" } },
+        "cpp"           =>  { :single => "//",  :multi => { :start => "/**",    :middle => "*", :end => "*/" } },
+        "css"           =>  { :single => nil,   :multi => { :start => "/**",    :middle => "*", :end => "*/" } },
+        "java"          =>  { :single => "//",  :multi => { :start => "/**",    :middle => "*", :end => "*/" } },
+        "js"            =>  { :single => "//",  :multi => { :start => "/**",    :middle => "*", :end => "*/" } },
         "lua"           =>  { :single => "--",  :multi => nil },
-        "python"        =>  { :single => "#",   :multi => { :start => '"""', :middle => nil, :end => '"""' } },
-        "rb"            =>  { :single => "#",   :multi => nil },
+        "python"        =>  { :single => "#",   :multi => { :start => '"""',    :middle => nil, :end => '"""' } },
+        "rb"            =>  { :single => "#",   :multi => { :start => '=begin', :middle => nil, :end => '=end' } },
         "scheme"        =>  { :single => ";;",  :multi => nil },
       }
         
       if comment_styles[language]
-        comment_styles[language][:single]
+        comment_styles[language]
       else
-        @options[:comment_chars]
+        { :single => @options[:comment_chars], :multi => nil }
       end
     end
   end
@@ -226,29 +233,91 @@ class Rocco
 
   # Parse the raw file data into a list of two-tuples. Each tuple has the
   # form `[docs, code]` where both elements are arrays containing the
-  # raw lines parsed from the input file. The first line is ignored if it
-  # is a shebang line.  We also ignore the PEP 263 encoding information in
-  # python sourcefiles, and the similar ruby 1.9 syntax.
+  # raw lines parsed from the input file, comment characters stripped.
   def parse(data)
     sections = []
     docs, code = [], []
     lines = data.split("\n")
+
+    # The first line is ignored if it is a shebang line.  We also ignore the
+    # PEP 263 encoding information in python sourcefiles, and the similar ruby
+    # 1.9 syntax.
     lines.shift if lines[0] =~ /^\#\!/
     lines.shift if lines[0] =~ /coding[:=]\s*[-\w.]+/ and [ "python", "rb" ].include? @options[:language]
+
+    # To detect both block comments and single-line comments, we'll set
+    # up a tiny state machine, and loop through each line of the file.
+    # This requires an `in_comment_block` boolean, and a few regular 
+    # expressions for line tests.
+    in_comment_block    = false
+    single_line_comment, block_comment_start, block_comment_mid, block_comment_end = nil, nil, nil, nil
+    if not @options[:comment_chars][:single].nil?
+      single_line_comment = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:single])}\\s?")
+    end
+    if not @options[:comment_chars][:multi].nil?
+      block_comment_start = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:multi][:start])}\\s*$")
+      block_comment_end   = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:multi][:end])}\\s*$")
+      if @options[:comment_chars][:multi][:middle]
+        block_comment_mid = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:multi][:middle])}\\s?")
+      end
+    end
     lines.each do |line|
-      case line
-      when @comment_pattern
-        if code.any?
-          sections << [docs, code]
-          docs, code = [], []
+      # If we're currently in a comment block, check whether the line matches
+      # the _end_ of a comment block.
+      if in_comment_block
+        if block_comment_end && line.match( block_comment_end )
+          in_comment_block = false
+        else
+          docs << line.sub( block_comment_mid || '', '' )
         end
-        docs << line
+      # Otherwise, check whether the line matches the beginning of a block, or
+      # a single-line comment all on it's lonesome.  In either case, if there's
+      # code, start a new section
       else
-        code << line
+        if block_comment_start && line.match( block_comment_start )
+          in_comment_block = true
+          if code.any?
+            sections << [docs, code]
+            docs, code = [], []
+          end
+        elsif single_line_comment && line.match( single_line_comment )
+          if code.any?
+            sections << [docs, code]
+            docs, code = [], []
+          end
+          docs << line.sub( single_line_comment || '', '' )
+        else
+          code << line
+        end
       end
     end
     sections << [docs, code] if docs.any? || code.any?
-    sections
+    normalize_leading_spaces( sections )
+  end
+
+  # Normalizes documentation whitespace by checking for leading whitespace,
+  # removing it, and then removing the same amount of whitespace from each
+  # succeeding line.  That is:
+  #
+  #     def func():
+  #       """
+  #         Comment 1
+  #         Comment 2
+  #       """
+  #       print "omg!"
+  #
+  # should yield a comment block of `Comment 1\nComment 2` and code of
+  # `def func():\n  print "omg!"`
+  def normalize_leading_spaces( sections )
+    sections.map do |section|
+      if section[ 0 ]
+        leading_space = section[0][0].match( "^\s+" )
+        if leading_space
+          section[0] = section[0].map{ |line| line.sub( /^#{leading_space.to_s}/, '' ) }
+        end
+      end
+      section
+    end
   end
 
   # Take the list of paired *sections* two-tuples and split into two
@@ -257,7 +326,7 @@ class Rocco
   def split(sections)
     docs_blocks, code_blocks = [], []
     sections.each do |docs,code|
-      docs_blocks << docs.map { |line| line.sub(@comment_pattern, '') }.join("\n")
+      docs_blocks << docs.join("\n")
       code_blocks << code.map do |line|
         tabs = line.match(/^(\t+)/)
         tabs ? line.sub(/^\t+/, '  ' * tabs.captures[0].length) : line
@@ -281,7 +350,7 @@ class Rocco
 
     # Combine all code blocks into a single big stream and run through either
     # `pygmentize(1)` or <http://pygments.appspot.com>
-    code_stream = code_blocks.join("\n\n#{@options[:comment_chars]} DIVIDER\n\n")
+    code_stream = code_blocks.join("\n\n#{@options[:comment_chars][:single]} DIVIDER\n\n")
 
     if pygmentize? 
       code_html = highlight_pygmentize(code_stream)
@@ -292,7 +361,7 @@ class Rocco
     # Do some post-processing on the pygments output to split things back
     # into sections and remove partial `<pre>` blocks.
     code_html = code_html.
-      split(/\n*<span class="c.?">#{@options[:comment_chars]} DIVIDER<\/span>\n*/m).
+      split(/\n*<span class="c.?">#{@options[:comment_chars][:single]} DIVIDER<\/span>\n*/m).
       map { |code| code.sub(/\n?<div class="highlight"><pre>/m, '') }.
       map { |code| code.sub(/\n?<\/pre><\/div>\n/m, '') }
 

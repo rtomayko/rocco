@@ -5,8 +5,8 @@ class RoccoSkippableLines < Test::Unit::TestCase
     r = Rocco.new( 'filename.sh' ) { "" }
     assert_equal(
         [
-            [ [ "# Comment 1" ], [ "def codeblock" ] ],
-            [ [ "# Comment 2" ], [ "end" ] ]
+            [ [ "Comment 1" ], [ "def codeblock" ] ],
+            [ [ "Comment 2" ], [ "end" ] ]
         ],
         r.parse( "#!/usr/bin/env bash\n# Comment 1\ndef codeblock\n# Comment 2\nend\n" ),
         "Shebang should be stripped when it appears as the first line."
@@ -16,8 +16,9 @@ class RoccoSkippableLines < Test::Unit::TestCase
     r = Rocco.new( 'filename.sh' ) { "" }
     assert_equal(
         [
-            [ [ "# Comment 1", "#!/usr/bin/env bash" ], [ "def codeblock" ] ],
-            [ [ "# Comment 2" ], [ "end" ] ]
+            # @TODO: `#!/` shouldn't be recognized as a comment.
+            [ [ "Comment 1", "!/usr/bin/env bash" ], [ "def codeblock" ] ],
+            [ [ "Comment 2" ], [ "end" ] ]
         ],
         r.parse( "# Comment 1\n#!/usr/bin/env bash\ndef codeblock\n# Comment 2\nend\n" ),
         "Shebang shouldn't be stripped anywhere other than as the first line."
@@ -27,8 +28,8 @@ class RoccoSkippableLines < Test::Unit::TestCase
     r = Rocco.new( 'filename.rb' ) { "" }
     assert_equal(
         [
-            [ [ "# Comment 1" ], [ "def codeblock" ] ],
-            [ [ "# Comment 2" ], [ "end" ] ]
+            [ [ "Comment 1" ], [ "def codeblock" ] ],
+            [ [ "Comment 2" ], [ "end" ] ]
         ],
         r.parse( "#!/usr/bin/env bash\n# encoding: utf-8\n# Comment 1\ndef codeblock\n# Comment 2\nend\n" ),
         "Strings matching the PEP 263 encoding definition regex should be stripped when they appear at the top of a python document."
@@ -38,8 +39,8 @@ class RoccoSkippableLines < Test::Unit::TestCase
     r = Rocco.new( 'filename.py' ) { "" }
     assert_equal(
         [
-            [ [ "# Comment 1" ], [ "def codeblock" ] ],
-            [ [ "# Comment 2" ], [ "end" ] ]
+            [ [ "Comment 1" ], [ "def codeblock" ] ],
+            [ [ "Comment 2" ], [ "end" ] ]
         ],
         r.parse( "#!/usr/bin/env bash\n# encoding: utf-8\n# Comment 1\ndef codeblock\n# Comment 2\nend\n" ),
         "Strings matching the PEP 263 encoding definition regex should be stripped when they appear at the top of a python document."
@@ -49,8 +50,8 @@ class RoccoSkippableLines < Test::Unit::TestCase
     r = Rocco.new( 'filename.sh' ) { "" }
     assert_equal(
         [
-            [ [ "# encoding: utf-8", "# Comment 1" ], [ "def codeblock" ] ],
-            [ [ "# Comment 2" ], [ "end" ] ]
+            [ [ "encoding: utf-8", "Comment 1" ], [ "def codeblock" ] ],
+            [ [ "Comment 2" ], [ "end" ] ]
         ],
         r.parse( "#!/usr/bin/env bash\n# encoding: utf-8\n# Comment 1\ndef codeblock\n# Comment 2\nend\n" ),
         "Strings matching the PEP 263 encoding definition regex should be stripped when they appear at the top of a python document."
