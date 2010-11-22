@@ -30,12 +30,12 @@ directory 'docs/'
 
 desc 'Build docs and open in browser for the reading'
 task :read => :docs do
-  sh 'open docs/rocco.html'
+  sh 'open docs/lib/rocco.html'
 end
 
 # Make index.html a copy of rocco.html
-file 'docs/index.html' => 'docs/rocco.html' do |f|
-  cp 'docs/rocco.html', 'docs/index.html', :preserve => true
+file 'docs/index.html' => 'docs/lib/rocco.html' do |f|
+  cp 'docs/lib/rocco.html', 'docs/index.html', :preserve => true
 end
 task :docs => 'docs/index.html'
 CLEAN.include 'docs/index.html'

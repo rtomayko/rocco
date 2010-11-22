@@ -310,7 +310,7 @@ class Rocco
   # `def func():\n  print "omg!"`
   def normalize_leading_spaces( sections )
     sections.map do |section|
-      if section[ 0 ]
+      if section.any? && section[0].any?
         leading_space = section[0][0].match( "^\s+" )
         if leading_space
           section[0] = section[0].map{ |line| line.sub( /^#{leading_space.to_s}/, '' ) }
