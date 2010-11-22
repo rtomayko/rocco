@@ -211,6 +211,7 @@ class Rocco
         "c"             =>  { :single => "//",  :multi => { :start => "/**",    :middle => "*", :end => "*/" } },
         "coffee-script" =>  { :single => "#",   :multi => { :start => "###",    :middle => nil, :end => "###" } },
         "cpp"           =>  { :single => "//",  :multi => { :start => "/**",    :middle => "*", :end => "*/" } },
+        "css"           =>  { :single => nil,   :multi => { :start => "/**",    :middle => "*", :end => "*/" } },
         "java"          =>  { :single => "//",  :multi => { :start => "/**",    :middle => "*", :end => "*/" } },
         "js"            =>  { :single => "//",  :multi => { :start => "/**",    :middle => "*", :end => "*/" } },
         "lua"           =>  { :single => "--",  :multi => nil },
@@ -265,7 +266,7 @@ class Rocco
         if block_comment_end && line.match( block_comment_end )
           in_comment_block = false
         else
-          docs << line.sub( block_comment_mid, '' )
+          docs << line.sub( block_comment_mid || '', '' )
         end
       # Otherwise, check whether the line matches the beginning of a block, or
       # a single-line comment all on it's lonesome.  In either case, if there's
@@ -282,7 +283,7 @@ class Rocco
             sections << [docs, code]
             docs, code = [], []
           end
-          docs << line.sub( single_line_comment, '' )
+          docs << line.sub( single_line_comment || '', '' )
         else
           code << line
         end
