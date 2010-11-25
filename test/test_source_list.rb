@@ -6,7 +6,6 @@ class RoccoSourceListTests < Test::Unit::TestCase
         "# Comment 1\n# Comment 1\nprint 'omg!'"
     }
     html = r.to_html
-    puts r.to_html
     assert(
       html.include?( '<a class="source" href="issue26a.html">issue26a.sh</a>' ) &&
       html.include?( '<a class="source" href="issue26b.html">issue26b.sh</a>' ) &&
@@ -19,7 +18,6 @@ class RoccoSourceListTests < Test::Unit::TestCase
         "# Comment 1\n# Comment 1\nprint 'omg!'"
     }
     html = r.to_html
-    puts r.to_html
     assert(
       html.include?( '<a class="source" href="issue26a.html">issue26a.sh</a>' ) &&
       html.include?( '<a class="source" href="../b/issue26b.html">issue26b.sh</a>' ) &&
