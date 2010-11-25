@@ -1,4 +1,5 @@
 require 'mustache'
+require 'pathname'
 
 class Rocco::Layout < Mustache
   self.template_path = File.dirname(__FILE__)
@@ -36,11 +37,14 @@ class Rocco::Layout < Mustache
   end
 
   def sources
+    currentpath = Pathname.new( File.dirname( @doc.file ) )
     @doc.sources.sort.map do |source|
+      htmlpath = Pathname.new( source.sub( Regexp.new( "#{File.extname(source)}$"), ".html" ) )
+
       {
         :path       => source,
         :basename   => File.basename(source),
-        :url        => source.sub( Regexp.new( "#{File.extname(source)}$"), ".html" )
+        :url        => htmlpath.relative_path_from( currentpath )
       }
     end
   end

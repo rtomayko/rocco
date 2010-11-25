@@ -43,6 +43,8 @@ Changelog
 
 *	Fixing language support for Pygments webservice (Issue #11)
 
+*	The source jumplist now generates correctly relative URLs (Issue #26)
+
 [vast]: https://github.com/vast
 
 0.5
