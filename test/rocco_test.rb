@@ -80,6 +80,16 @@ class RoccoBasicTests < Test::Unit::TestCase
         )
     end
 
+    def test_section_names
+      # Check that a markdown heading produces a corresponding section in the output that has:
+      #   - one element (probably a <tr>) with an id based on the heading text
+      #   - an anchor with a href based on the heading text
+      # This allows one to create stable links to sections in the html.
+      r = roccoize( "filename.rb", "## a heading")
+      assert_match /id='section-a_heading'/, r.to_html, "the output html should contain a id attribute equal to 'section-a_heading'"
+      assert_match /href="#section-a_heading"/, r.to_html, 'the output html should contain a href attribute equal to "#section-a_heading"'
+    end
+
 end
 
 class RoccoLanguageDetection < Test::Unit::TestCase
