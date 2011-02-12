@@ -18,16 +18,19 @@ class Rocco::Layout < Mustache
   def sections
     num = 0
     @doc.sections.map do |docs,code|
+      is_header = /^<h.>(.+)<\/h.>$/.match( docs )
+      header_text = is_header && is_header[1].split.join("_")
+      num += 1
       {
         :docs       =>  docs,
         :docs?      =>  !docs.empty?,
-        :header?    =>  /^<h.>.+<\/h.>$/.match( docs ),
+        :header?    =>  is_header,
 
         :code       =>  code,
         :code?      =>  !code.empty?,
 
         :empty?     =>  ( code.empty? && docs.empty? ),
-        :num        =>  (num += 1)
+        :section_id =>  is_header ? header_text : num
       }
     end
   end
