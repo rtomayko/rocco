@@ -27,6 +27,11 @@ Changelog
 *   Stripping encoding definitions from Ruby and Python files in the same
 	way we strip shebang lines (Issue #21)
 
+*   Adjusting section IDs to contain descriptive test from headers.  A header
+	section's ID might be `section-Header_text_goes_here` for friendlier URLs.
+	Other section IDs will remain the same (`section-2` will stay
+	`section-2`). (Issue #28)
+
 ### Bug Fixes ###
 
 *	Docco's CSS changed: we updated Rocco's HTML accordingly, and pinned
