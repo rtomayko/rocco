@@ -18,6 +18,3 @@ def roccoize( filename, contents, options = {} )
         contents
     }
 end
-
-# Send STDERR into the void to suppress program output messages
-STDERR.reopen(test(?e, '/dev/null') ? '/dev/null' : 'NUL:')
