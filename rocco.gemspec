@@ -3,17 +3,18 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
 
   s.name = 'rocco'
-  s.version = '0.5'
-  s.date = '2010-09-10'
+  s.version = '0.6'
+  s.date = '2011-03-05'
 
   s.description = "Docco in Ruby"
   s.summary     = s.description
 
-  s.authors = ["Ryan Tomayko"]
-  s.email = "r@tomayko.com"
+  s.authors = ["Ryan Tomayko", "Mike West"]
+  s.email   = ["r@tomayko.com", "<mike@mikewest.org>"]
 
   # = MANIFEST =
   s.files = %w[
+    CHANGES.md
     COPYING
     README
     Rakefile
@@ -23,6 +24,19 @@ Gem::Specification.new do |s|
     lib/rocco/layout.rb
     lib/rocco/tasks.rb
     rocco.gemspec
+    test/fixtures/issue10.iso-8859-1.rb
+    test/fixtures/issue10.utf-8.rb
+    test/helper.rb
+    test/suite.rb
+    test/test_basics.rb
+    test/test_block_comments.rb
+    test/test_comment_normalization.rb
+    test/test_commentchar_detection.rb
+    test/test_descriptive_section_names.rb
+    test/test_language_detection.rb
+    test/test_reported_issues.rb
+    test/test_skippable_lines.rb
+    test/test_source_list.rb
   ]
   # = MANIFEST =
 

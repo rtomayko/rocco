@@ -63,18 +63,18 @@ end
 # for other documentation sources, an `options` hash, and an optional `block`.
 # The `options` hash respects three members:
 #
-# *    `:language`: specifies which Pygments lexer to use if one can't be
-#      auto-detected from the filename.  _Defaults to `ruby`_.
+# * `:language`: specifies which Pygments lexer to use if one can't be
+#   auto-detected from the filename.  _Defaults to `ruby`_.
 #
-# *    `:comment_chars`, which specifies the comment characters of the
-#      target language. _Defaults to `#`_.
+# * `:comment_chars`, which specifies the comment characters of the
+#   target language. _Defaults to `#`_.
 #
-# *    `:template_file`, which specifies a external template file to use
-#      when rendering the final, highlighted file via Mustache.  _Defaults
-#      to `nil` (that is, Mustache will use `./lib/rocco/layout.mustache`)_.
+# * `:template_file`, which specifies a external template file to use
+#   when rendering the final, highlighted file via Mustache.  _Defaults
+#   to `nil` (that is, Mustache will use `./lib/rocco/layout.mustache`)_.
 #
 class Rocco
-  VERSION = '0.5'
+  VERSION = '0.6'
 
   def initialize(filename, sources=[], options={}, &block)
     @file       = filename
