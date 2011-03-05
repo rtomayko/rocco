@@ -59,15 +59,6 @@ if sources.empty?
   abort_with_note "#{File.basename($0)}: no input <file>s given"
 end
 
-# Postprocess `sources` so that paths like `bin/file.rb` are written as `./bin/file.rb`:
-sources = sources.map do |filename|
-  if filename.match( '^[a-zA-Z]' )
-    File.join( '.', filename )
-  else
-    filename
-  end
-end
-
 # What a fucking mess. Most of this is duplicated in rocco.rb too.
 libdir = File.expand_path('../../lib', __FILE__).sub(/^#{Dir.pwd}\//, '')
 begin
@@ -99,7 +90,8 @@ end
 # Run each file through Rocco and write output.
 sources.each do |filename|
   rocco = Rocco.new(filename, sources, options)
-  dest = File.join(output_dir, filename.sub(Regexp.new("#{File.extname(filename)}$"),".html"))
+  dest = filename.sub(Regexp.new("#{File.extname(filename)}$"),".html")
+  dest = File.join(output_dir, dest) if output_dir != '.'
   puts "rocco: #{filename} -> #{dest}"
   FileUtils.mkdir_p File.dirname(dest)
   File.open(dest, 'wb') { |fd| fd.write(rocco.to_html) }
