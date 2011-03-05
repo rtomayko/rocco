@@ -3,11 +3,21 @@
 <head>
   <meta http-equiv="content-type" content="text/html;charset=utf-8">
   <title>rocco.rb</title>
-  <link rel="stylesheet" href="http://jashkenas.github.com/docco/resources/docco.css">
+  <link rel="stylesheet" href="http://github.com/jashkenas/docco/raw/0.3.0/resources/docco.css">
 </head>
 <body>
 <div id='container'>
   <div id="background"></div>
+  <div id="jump_to">
+    Jump To &hellip;
+    <div id="jump_wrapper">
+      <div id="jump_page">
+          <a class="source" href="rocco.html">rocco.rb</a>
+          <a class="source" href="rocco/layout.html">layout.rb</a>
+          <a class="source" href="rocco/tasks.html">tasks.rb</a>
+      </div>
+    </div>
+  </div>
   <table cellspacing=0 cellpadding=0>
   <thead>
     <tr>
@@ -18,8 +28,8 @@
   <tbody>
     <tr id='section-1'>
       <td class=docs>
-        <div class="octowrap">
-          <a class="octothorpe" href="#section-1">#</a>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-1">&#182;</a>
         </div>
         <p><strong>Rocco</strong> is a Ruby port of <a href="http://jashkenas.github.com/docco/">Docco</a>, the quick-and-dirty,
 hundred-line-long, literate-programming-style documentation generator.</p>
@@ -52,10 +62,10 @@ for a set of Ruby source files:</p>
         <div class='highlight'><pre></pre></div>
       </td>
     </tr>
-    <tr id='section-2'>
+    <tr id='section-Prerequisites'>
       <td class=docs>
-        <div class="octowrap">
-          <a class="octothorpe" href="#section-2">#</a>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-Prerequisites">&#182;</a>
         </div>
         <h3>Prerequisites</h3>
       </td>
@@ -65,8 +75,8 @@ for a set of Ruby source files:</p>
     </tr>
     <tr id='section-3'>
       <td class=docs>
-        <div class="octowrap">
-          <a class="octothorpe" href="#section-3">#</a>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-3">&#182;</a>
         </div>
         <p>We&rsquo;ll need a Markdown library. <a href="http://github.com/rtomayko/rdiscount">RDiscount</a>, if we&rsquo;re lucky. Otherwise,
 issue a warning and fall back on using BlueCloth.</p>
@@ -75,7 +85,7 @@ issue a warning and fall back on using BlueCloth.</p>
         <div class='highlight'><pre><span class="k">begin</span>
   <span class="nb">require</span> <span class="s1">&#39;rdiscount&#39;</span>
 <span class="k">rescue</span> <span class="no">LoadError</span> <span class="o">=&gt;</span> <span class="n">boom</span>
-  <span class="nb">warn</span> <span class="s2">&quot;warn: </span><span class="si">#{</span><span class="n">boom</span><span class="si">}</span><span class="s2">. trying bluecloth&quot;</span>
+  <span class="nb">warn</span> <span class="s2">&quot;WARNING: </span><span class="si">#{</span><span class="n">boom</span><span class="si">}</span><span class="s2">. Trying bluecloth.&quot;</span>
   <span class="nb">require</span> <span class="s1">&#39;bluecloth&#39;</span>
   <span class="no">Markdown</span> <span class="o">=</span> <span class="no">BlueCloth</span>
 <span class="k">end</span></pre></div>
@@ -83,8 +93,8 @@ issue a warning and fall back on using BlueCloth.</p>
     </tr>
     <tr id='section-4'>
       <td class=docs>
-        <div class="octowrap">
-          <a class="octothorpe" href="#section-4">#</a>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-4">&#182;</a>
         </div>
         <p>We use <a href="http://defunkt.github.com/mustache/">{{ mustache }}</a> for
 HTML templating.</p>
@@ -95,23 +105,34 @@ HTML templating.</p>
     </tr>
     <tr id='section-5'>
       <td class=docs>
-        <div class="octowrap">
-          <a class="octothorpe" href="#section-5">#</a>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-5">&#182;</a>
         </div>
-        <p>Code is run through <a href="http://pygments.org/">Pygments</a> for syntax
-highlighting. Fail fast right here if we can&rsquo;t find the <code>pygmentize</code>
-program on PATH.</p>
+        <p>We use <code>Net::HTTP</code> to highlight code via <a href="http://pygments.appspot.com">http://pygments.appspot.com</a></p>
       </td>
       <td class=code>
-        <div class='highlight'><pre><span class="k">if</span> <span class="o">!</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;PATH&#39;</span><span class="o">].</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">any?</span> <span class="p">{</span> <span class="o">|</span><span class="n">dir</span><span class="o">|</span> <span class="no">File</span><span class="o">.</span><span class="n">exist?</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">dir</span><span class="si">}</span><span class="s2">/pygmentize&quot;</span><span class="p">)</span> <span class="p">}</span>
-  <span class="nb">fail</span> <span class="s2">&quot;Pygments is required for syntax highlighting&quot;</span>
-<span class="k">end</span></pre></div>
+        <div class='highlight'><pre><span class="nb">require</span> <span class="s1">&#39;net/http&#39;</span></pre></div>
       </td>
     </tr>
     <tr id='section-6'>
       <td class=docs>
-        <div class="octowrap">
-          <a class="octothorpe" href="#section-6">#</a>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-6">&#182;</a>
+        </div>
+        <p>Code is run through <a href="http://pygments.org/">Pygments</a> for syntax
+highlighting. If it&rsquo;s not installed, locally, use a webservice.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre><span class="kp">include</span> <span class="no">FileTest</span>
+<span class="k">if</span> <span class="o">!</span><span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;PATH&#39;</span><span class="o">].</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">any?</span> <span class="p">{</span> <span class="o">|</span><span class="n">dir</span><span class="o">|</span> <span class="n">executable?</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">dir</span><span class="si">}</span><span class="s2">/pygmentize&quot;</span><span class="p">)</span> <span class="p">}</span>
+  <span class="nb">warn</span> <span class="s2">&quot;WARNING: Pygments not found. Using webservice.&quot;</span>
+<span class="k">end</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-Public_Interface'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-Public_Interface">&#182;</a>
         </div>
         <h3>Public Interface</h3>
       </td>
@@ -119,36 +140,146 @@ program on PATH.</p>
         <div class='highlight'><pre></pre></div>
       </td>
     </tr>
-    <tr id='section-7'>
+    <tr id='section-8'>
       <td class=docs>
-        <div class="octowrap">
-          <a class="octothorpe" href="#section-7">#</a>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-8">&#182;</a>
         </div>
-        <p><code>Rocco.new</code> takes a source <code>filename</code> and an optional <code>block</code>.
-When <code>block</code> is given, it must read the contents of the file using
-whatever means necessary and return it as a string. With no <code>block</code>, the
-file is read to retrieve data.</p>
+        <p><code>Rocco.new</code> takes a source <code>filename</code>, an optional list of source filenames
+for other documentation sources, an <code>options</code> hash, and an optional <code>block</code>.
+The <code>options</code> hash respects three members:</p>
+
+<ul>
+<li><p><code>:language</code>: specifies which Pygments lexer to use if one can&rsquo;t be
+auto-detected from the filename.  <em>Defaults to <code>ruby</code></em>.</p></li>
+<li><p><code>:comment_chars</code>, which specifies the comment characters of the
+target language. <em>Defaults to <code>#</code></em>.</p></li>
+<li><p><code>:template_file</code>, which specifies a external template file to use
+when rendering the final, highlighted file via Mustache.  <em>Defaults
+to <code>nil</code> (that is, Mustache will use <code>./lib/rocco/layout.mustache</code>)</em>.</p></li>
+</ul>
       </td>
       <td class=code>
         <div class='highlight'><pre><span class="k">class</span> <span class="nc">Rocco</span>
-  <span class="no">VERSION</span> <span class="o">=</span> <span class="s1">&#39;0.2&#39;</span>
+  <span class="no">VERSION</span> <span class="o">=</span> <span class="s1">&#39;0.6&#39;</span>
 
-  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
-    <span class="vi">@file</span> <span class="o">=</span> <span class="n">filename</span>
-    <span class="vi">@data</span> <span class="o">=</span>
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">sources</span><span class="o">=[]</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{},</span> <span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+    <span class="vi">@file</span>       <span class="o">=</span> <span class="n">filename</span>
+    <span class="vi">@sources</span>    <span class="o">=</span> <span class="n">sources</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-9'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-9">&#182;</a>
+        </div>
+        <p>When <code>block</code> is given, it must read the contents of the file using
+whatever means necessary and return it as a string. With no <code>block</code>,
+the file is read to retrieve data.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="vi">@data</span> <span class="o">=</span>
       <span class="k">if</span> <span class="nb">block_given?</span>
         <span class="k">yield</span>
       <span class="k">else</span>
         <span class="no">File</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
       <span class="k">end</span>
-    <span class="vi">@sections</span> <span class="o">=</span> <span class="n">highlight</span><span class="p">(</span><span class="nb">split</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="vi">@data</span><span class="p">)))</span>
+
+    <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="ss">:language</span>      <span class="o">=&gt;</span> <span class="s1">&#39;ruby&#39;</span><span class="p">,</span>
+      <span class="ss">:comment_chars</span> <span class="o">=&gt;</span> <span class="s1">&#39;#&#39;</span><span class="p">,</span>
+      <span class="ss">:template_file</span> <span class="o">=&gt;</span> <span class="kp">nil</span>
+    <span class="p">}</span>
+    <span class="vi">@options</span> <span class="o">=</span> <span class="n">defaults</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">options</span><span class="p">)</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-10'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-10">&#182;</a>
+        </div>
+        <p>If we detect a language</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="k">if</span> <span class="n">detect_language</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;text&quot;</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-11'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-11">&#182;</a>
+        </div>
+        <p>then assign the detected language to <code>:language</code>, and look for
+comment characters based on that language</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>      <span class="vi">@options</span><span class="o">[</span><span class="ss">:language</span><span class="o">]</span> <span class="o">=</span> <span class="n">detect_language</span><span class="p">()</span>
+      <span class="vi">@options</span><span class="o">[</span><span class="ss">:comment_chars</span><span class="o">]</span> <span class="o">=</span> <span class="n">generate_comment_chars</span><span class="p">()</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-12'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-12">&#182;</a>
+        </div>
+        <p>If we didn&rsquo;t detect a language, but the user provided one, use it
+to look around for comment characters to override the default.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="k">elsif</span> <span class="vi">@options</span><span class="o">[</span><span class="ss">:language</span><span class="o">]</span> <span class="o">!=</span> <span class="n">defaults</span><span class="o">[</span><span class="ss">:language</span><span class="o">]</span>
+      <span class="vi">@options</span><span class="o">[</span><span class="ss">:comment_chars</span><span class="o">]</span> <span class="o">=</span> <span class="n">generate_comment_chars</span><span class="p">()</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-13'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-13">&#182;</a>
+        </div>
+        <p>If neither is true, then convert the default comment character string
+into the comment_char syntax (we&rsquo;ll discuss that syntax in detail when
+we get to <code>generate_comment_chars()</code> in a moment.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="k">else</span>
+      <span class="vi">@options</span><span class="o">[</span><span class="ss">:comment_chars</span><span class="o">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="ss">:single</span> <span class="o">=&gt;</span> <span class="vi">@options</span><span class="o">[</span><span class="ss">:comment_chars</span><span class="o">]</span><span class="p">,</span>
+        <span class="ss">:multi</span> <span class="o">=&gt;</span> <span class="kp">nil</span>
+      <span class="p">}</span>
+    <span class="k">end</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-14'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-14">&#182;</a>
+        </div>
+        <p>Turn <code>:comment_chars</code> into a regex matching a series of spaces, the
+<code>:comment_chars</code> string, and the an optional space.  We&rsquo;ll use that
+to detect single-line comments.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="vi">@comment_pattern</span> <span class="o">=</span>
+      <span class="no">Regexp</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;^</span><span class="se">\\</span><span class="s2">s*</span><span class="si">#{</span><span class="vi">@options</span><span class="o">[</span><span class="ss">:comment_chars</span><span class="o">][</span><span class="ss">:single</span><span class="o">]</span><span class="si">}</span><span class="se">\s</span><span class="s2">?&quot;</span><span class="p">)</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-15'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-15">&#182;</a>
+        </div>
+        <p><code>parse()</code> the file contents stored in <code>@data</code>.  Run the result through
+<code>split()</code> and that result through <code>highlight()</code> to generate the final
+section list.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="vi">@sections</span> <span class="o">=</span> <span class="n">highlight</span><span class="p">(</span><span class="nb">split</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="vi">@data</span><span class="p">)))</span>
   <span class="k">end</span></pre></div>
       </td>
     </tr>
-    <tr id='section-8'>
+    <tr id='section-16'>
       <td class=docs>
-        <div class="octowrap">
-          <a class="octothorpe" href="#section-8">#</a>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-16">&#182;</a>
         </div>
         <p>The filename as given to <code>Rocco.new</code>.</p>
       </td>
@@ -156,10 +287,21 @@ file is read to retrieve data.</p>
         <div class='highlight'><pre>  <span class="kp">attr_reader</span> <span class="ss">:file</span></pre></div>
       </td>
     </tr>
-    <tr id='section-9'>
+    <tr id='section-17'>
       <td class=docs>
-        <div class="octowrap">
-          <a class="octothorpe" href="#section-9">#</a>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-17">&#182;</a>
+        </div>
+        <p>The merged options array</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>  <span class="kp">attr_reader</span> <span class="ss">:options</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-18'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-18">&#182;</a>
         </div>
         <p>A list of two-tuples representing each <em>section</em> of the source file. Each
 item in the list has the form: <code>[docs_html, code_html]</code>, where both
@@ -170,65 +312,329 @@ respectively.</p>
         <div class='highlight'><pre>  <span class="kp">attr_reader</span> <span class="ss">:sections</span></pre></div>
       </td>
     </tr>
-    <tr id='section-10'>
+    <tr id='section-19'>
       <td class=docs>
-        <div class="octowrap">
-          <a class="octothorpe" href="#section-10">#</a>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-19">&#182;</a>
+        </div>
+        <p>A list of all source filenames included in the documentation set. Useful
+for building an index of other files.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>  <span class="kp">attr_reader</span> <span class="ss">:sources</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-20'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-20">&#182;</a>
         </div>
         <p>Generate HTML output for the entire document.</p>
       </td>
       <td class=code>
         <div class='highlight'><pre>  <span class="nb">require</span> <span class="s1">&#39;rocco/layout&#39;</span>
   <span class="k">def</span> <span class="nf">to_html</span>
-    <span class="no">Rocco</span><span class="o">::</span><span class="no">Layout</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span><span class="o">.</span><span class="n">render</span>
+    <span class="no">Rocco</span><span class="o">::</span><span class="no">Layout</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">self</span><span class="p">,</span> <span class="vi">@options</span><span class="o">[</span><span class="ss">:template_file</span><span class="o">]</span><span class="p">)</span><span class="o">.</span><span class="n">render</span>
   <span class="k">end</span></pre></div>
       </td>
     </tr>
-    <tr id='section-11'>
+    <tr id='section-Helper_Functions'>
       <td class=docs>
-        <div class="octowrap">
-          <a class="octothorpe" href="#section-11">#</a>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-Helper_Functions">&#182;</a>
         </div>
-        <h3>Internal Parsing and Highlighting</h3>
+        <h2>Helper Functions</h2>
       </td>
       <td class=code>
         <div class='highlight'><pre></pre></div>
       </td>
     </tr>
-    <tr id='section-12'>
+    <tr id='section-22'>
       <td class=docs>
-        <div class="octowrap">
-          <a class="octothorpe" href="#section-12">#</a>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-22">&#182;</a>
+        </div>
+        <p>Returns <code>true</code> if <code>pygmentize</code> is available locally, <code>false</code> otherwise.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>  <span class="k">def</span> <span class="nf">pygmentize?</span>
+    <span class="vi">@_pygmentize</span> <span class="o">||=</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;PATH&#39;</span><span class="o">].</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span><span class="o">.</span>
+      <span class="n">any?</span> <span class="p">{</span> <span class="o">|</span><span class="n">dir</span><span class="o">|</span> <span class="n">executable?</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">dir</span><span class="si">}</span><span class="s2">/pygmentize&quot;</span><span class="p">)</span> <span class="p">}</span>
+  <span class="k">end</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-23'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-23">&#182;</a>
+        </div>
+        <p>If <code>pygmentize</code> is available, we can use it to autodetect a file&rsquo;s
+language based on its filename.  Filenames without extensions, or with
+extensions that <code>pygmentize</code> doesn&rsquo;t understand will return <code>text</code>.
+We&rsquo;ll also return <code>text</code> if <code>pygmentize</code> isn&rsquo;t available.</p>
+
+<p>We&rsquo;ll memoize the result, as we&rsquo;ll call this a few times.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>  <span class="k">def</span> <span class="nf">detect_language</span>
+    <span class="vi">@_language</span> <span class="o">||=</span>
+      <span class="k">if</span> <span class="n">pygmentize?</span>
+        <span class="sx">%x[pygmentize -N </span><span class="si">#{</span><span class="vi">@file</span><span class="si">}</span><span class="sx">]</span><span class="o">.</span><span class="n">strip!</span>
+      <span class="k">else</span>
+        <span class="s2">&quot;text&quot;</span>
+      <span class="k">end</span>
+  <span class="k">end</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-24'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-24">&#182;</a>
+        </div>
+        <p>Given a file&rsquo;s language, we should be able to autopopulate the
+<code>comment_chars</code> variables for single-line comments.  If we don&rsquo;t
+have comment characters on record for a given language, we&rsquo;ll
+use the user-provided <code>:comment_char</code> option (which defaults to
+<code>#</code>).</p>
+
+<p>Comment characters are listed as:</p>
+
+<pre><code>{ :single       =&gt; "//",
+  :multi_start  =&gt; "/**",
+  :multi_middle =&gt; "*",
+  :multi_end    =&gt; "*/" }
+</code></pre>
+
+<p><code>:single</code> denotes the leading character of a single-line comment.
+<code>:multi_start</code> denotes the string that should appear alone on a
+line of code to begin a block of documentation.  <code>:multi_middle</code>
+denotes the leading character of block comment content, and
+<code>:multi_end</code> is the string that ought appear alone on a line to
+close a block of documentation.  That is:</p>
+
+<pre><code>/**                 [:multi][:start]
+ *                  [:multi][:middle]
+ ...
+ *                  [:multi][:middle]
+ */                 [:multi][:end]
+</code></pre>
+
+<p>If a language only has one type of comment, the missing type
+should be assigned <code>nil</code>.</p>
+
+<p>At the moment, we&rsquo;re only returning <code>:single</code>.  Consider this
+groundwork for block comment parsing.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>  <span class="no">COMMENT_STYLES</span>  <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;bash&quot;</span>          <span class="o">=&gt;</span>  <span class="p">{</span> <span class="ss">:single</span> <span class="o">=&gt;</span> <span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="ss">:multi</span> <span class="o">=&gt;</span> <span class="kp">nil</span> <span class="p">},</span>
+    <span class="s2">&quot;c&quot;</span>             <span class="o">=&gt;</span>  <span class="p">{</span>
+      <span class="ss">:single</span> <span class="o">=&gt;</span> <span class="s2">&quot;//&quot;</span><span class="p">,</span>
+      <span class="ss">:multi</span>  <span class="o">=&gt;</span> <span class="p">{</span> <span class="ss">:start</span> <span class="o">=&gt;</span> <span class="s2">&quot;/**&quot;</span><span class="p">,</span> <span class="ss">:middle</span> <span class="o">=&gt;</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="ss">:end</span> <span class="o">=&gt;</span> <span class="s2">&quot;*/&quot;</span> <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;coffee-script&quot;</span> <span class="o">=&gt;</span>  <span class="p">{</span>
+      <span class="ss">:single</span> <span class="o">=&gt;</span> <span class="s2">&quot;#&quot;</span><span class="p">,</span>
+      <span class="ss">:multi</span>  <span class="o">=&gt;</span> <span class="p">{</span> <span class="ss">:start</span> <span class="o">=&gt;</span> <span class="s2">&quot;###&quot;</span><span class="p">,</span> <span class="ss">:middle</span> <span class="o">=&gt;</span> <span class="kp">nil</span><span class="p">,</span> <span class="ss">:end</span> <span class="o">=&gt;</span> <span class="s2">&quot;###&quot;</span> <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;cpp&quot;</span> <span class="o">=&gt;</span>  <span class="p">{</span>
+      <span class="ss">:single</span> <span class="o">=&gt;</span> <span class="s2">&quot;//&quot;</span><span class="p">,</span>
+      <span class="ss">:multi</span>  <span class="o">=&gt;</span> <span class="p">{</span> <span class="ss">:start</span> <span class="o">=&gt;</span> <span class="s2">&quot;/**&quot;</span><span class="p">,</span> <span class="ss">:middle</span> <span class="o">=&gt;</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="ss">:end</span> <span class="o">=&gt;</span> <span class="s2">&quot;*/&quot;</span> <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;css&quot;</span>           <span class="o">=&gt;</span>  <span class="p">{</span>
+      <span class="ss">:single</span> <span class="o">=&gt;</span> <span class="kp">nil</span><span class="p">,</span>
+      <span class="ss">:multi</span>  <span class="o">=&gt;</span> <span class="p">{</span> <span class="ss">:start</span> <span class="o">=&gt;</span> <span class="s2">&quot;/**&quot;</span><span class="p">,</span> <span class="ss">:middle</span> <span class="o">=&gt;</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="ss">:end</span> <span class="o">=&gt;</span> <span class="s2">&quot;*/&quot;</span> <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;java&quot;</span>          <span class="o">=&gt;</span>  <span class="p">{</span>
+      <span class="ss">:single</span> <span class="o">=&gt;</span> <span class="s2">&quot;//&quot;</span><span class="p">,</span>
+      <span class="ss">:multi</span>  <span class="o">=&gt;</span> <span class="p">{</span> <span class="ss">:start</span> <span class="o">=&gt;</span> <span class="s2">&quot;/**&quot;</span><span class="p">,</span> <span class="ss">:middle</span> <span class="o">=&gt;</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="ss">:end</span> <span class="o">=&gt;</span> <span class="s2">&quot;*/&quot;</span> <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;js&quot;</span>            <span class="o">=&gt;</span>  <span class="p">{</span>
+      <span class="ss">:single</span> <span class="o">=&gt;</span> <span class="s2">&quot;//&quot;</span><span class="p">,</span>
+      <span class="ss">:multi</span>  <span class="o">=&gt;</span> <span class="p">{</span> <span class="ss">:start</span> <span class="o">=&gt;</span> <span class="s2">&quot;/**&quot;</span><span class="p">,</span> <span class="ss">:middle</span> <span class="o">=&gt;</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="ss">:end</span> <span class="o">=&gt;</span> <span class="s2">&quot;*/&quot;</span> <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;lua&quot;</span>           <span class="o">=&gt;</span>  <span class="p">{</span>
+      <span class="ss">:single</span> <span class="o">=&gt;</span> <span class="s2">&quot;--&quot;</span><span class="p">,</span>
+      <span class="ss">:multi</span> <span class="o">=&gt;</span> <span class="kp">nil</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;python&quot;</span>        <span class="o">=&gt;</span>  <span class="p">{</span>
+      <span class="ss">:single</span> <span class="o">=&gt;</span> <span class="s2">&quot;#&quot;</span><span class="p">,</span>
+      <span class="ss">:multi</span>  <span class="o">=&gt;</span> <span class="p">{</span> <span class="ss">:start</span> <span class="o">=&gt;</span> <span class="s1">&#39;&quot;&quot;&quot;&#39;</span><span class="p">,</span> <span class="ss">:middle</span> <span class="o">=&gt;</span> <span class="kp">nil</span><span class="p">,</span> <span class="ss">:end</span> <span class="o">=&gt;</span> <span class="s1">&#39;&quot;&quot;&quot;&#39;</span> <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;rb&quot;</span>            <span class="o">=&gt;</span>  <span class="p">{</span>
+      <span class="ss">:single</span> <span class="o">=&gt;</span> <span class="s2">&quot;#&quot;</span><span class="p">,</span>
+      <span class="ss">:multi</span>  <span class="o">=&gt;</span> <span class="p">{</span> <span class="ss">:start</span> <span class="o">=&gt;</span> <span class="s1">&#39;=begin&#39;</span><span class="p">,</span> <span class="ss">:middle</span> <span class="o">=&gt;</span> <span class="kp">nil</span><span class="p">,</span> <span class="ss">:end</span> <span class="o">=&gt;</span> <span class="s1">&#39;=end&#39;</span> <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;scheme&quot;</span>        <span class="o">=&gt;</span>  <span class="p">{</span> <span class="ss">:single</span> <span class="o">=&gt;</span> <span class="s2">&quot;;;&quot;</span><span class="p">,</span>  <span class="ss">:multi</span> <span class="o">=&gt;</span> <span class="kp">nil</span> <span class="p">},</span>
+  <span class="p">}</span>
+
+  <span class="k">def</span> <span class="nf">generate_comment_chars</span>
+    <span class="vi">@_commentchar</span> <span class="o">||=</span>
+      <span class="k">if</span> <span class="no">COMMENT_STYLES</span><span class="o">[</span><span class="vi">@options</span><span class="o">[</span><span class="ss">:language</span><span class="o">]]</span>
+        <span class="no">COMMENT_STYLES</span><span class="o">[</span><span class="vi">@options</span><span class="o">[</span><span class="ss">:language</span><span class="o">]]</span>
+      <span class="k">else</span>
+        <span class="p">{</span> <span class="ss">:single</span> <span class="o">=&gt;</span> <span class="vi">@options</span><span class="o">[</span><span class="ss">:comment_chars</span><span class="o">]</span><span class="p">,</span> <span class="ss">:multi</span> <span class="o">=&gt;</span> <span class="kp">nil</span> <span class="p">}</span>
+      <span class="k">end</span>
+  <span class="k">end</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-Internal_Parsing_and_Highlighting'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-Internal_Parsing_and_Highlighting">&#182;</a>
+        </div>
+        <h2>Internal Parsing and Highlighting</h2>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre></pre></div>
+      </td>
+    </tr>
+    <tr id='section-26'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-26">&#182;</a>
         </div>
         <p>Parse the raw file data into a list of two-tuples. Each tuple has the
 form <code>[docs, code]</code> where both elements are arrays containing the
-raw lines parsed from the input file.</p>
+raw lines parsed from the input file, comment characters stripped.</p>
       </td>
       <td class=code>
         <div class='highlight'><pre>  <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="n">sections</span> <span class="o">=</span> <span class="o">[]</span>
     <span class="n">docs</span><span class="p">,</span> <span class="n">code</span> <span class="o">=</span> <span class="o">[]</span><span class="p">,</span> <span class="o">[]</span>
-    <span class="n">data</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">line</span><span class="o">|</span>
-      <span class="k">case</span> <span class="n">line</span>
-      <span class="k">when</span><span class="sr"> /^\s*#/</span>
-        <span class="k">if</span> <span class="n">code</span><span class="o">.</span><span class="n">any?</span>
-          <span class="n">sections</span> <span class="o">&lt;&lt;</span> <span class="o">[</span><span class="n">docs</span><span class="p">,</span> <span class="n">code</span><span class="o">]</span>
-          <span class="n">docs</span><span class="p">,</span> <span class="n">code</span> <span class="o">=</span> <span class="o">[]</span><span class="p">,</span> <span class="o">[]</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-27'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-27">&#182;</a>
+        </div>
+        <p>The first line is ignored if it is a shebang line.  We also ignore the
+PEP 263 encoding information in python sourcefiles, and the similar ruby
+1.9 syntax.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="n">lines</span><span class="o">.</span><span class="n">shift</span> <span class="k">if</span> <span class="n">lines</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">=~</span> <span class="sr">/^\#\!/</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">shift</span> <span class="k">if</span> <span class="n">lines</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">=~</span> <span class="sr">/coding[:=]\s*[-\w.]+/</span> <span class="o">&amp;&amp;</span>
+                   <span class="o">[</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span> <span class="o">].</span><span class="n">include?</span><span class="p">(</span><span class="vi">@options</span><span class="o">[</span><span class="ss">:language</span><span class="o">]</span><span class="p">)</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-28'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-28">&#182;</a>
+        </div>
+        <p>To detect both block comments and single-line comments, we&rsquo;ll set
+up a tiny state machine, and loop through each line of the file.
+This requires an <code>in_comment_block</code> boolean, and a few regular
+expressions for line tests.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="n">in_comment_block</span> <span class="o">=</span> <span class="kp">false</span>
+    <span class="n">single_line_comment</span><span class="p">,</span> <span class="n">block_comment_start</span><span class="p">,</span> <span class="n">block_comment_mid</span><span class="p">,</span> <span class="n">block_comment_end</span> <span class="o">=</span>
+      <span class="kp">nil</span><span class="p">,</span> <span class="kp">nil</span><span class="p">,</span> <span class="kp">nil</span><span class="p">,</span> <span class="kp">nil</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="vi">@options</span><span class="o">[</span><span class="ss">:comment_chars</span><span class="o">][</span><span class="ss">:single</span><span class="o">].</span><span class="n">nil?</span>
+      <span class="n">single_line_comment</span> <span class="o">=</span> <span class="no">Regexp</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;^</span><span class="se">\\</span><span class="s2">s*</span><span class="si">#{</span><span class="no">Regexp</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="vi">@options</span><span class="o">[</span><span class="ss">:comment_chars</span><span class="o">][</span><span class="ss">:single</span><span class="o">]</span><span class="p">)</span><span class="si">}</span><span class="se">\\</span><span class="s2">s?&quot;</span><span class="p">)</span>
+    <span class="k">end</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="vi">@options</span><span class="o">[</span><span class="ss">:comment_chars</span><span class="o">][</span><span class="ss">:multi</span><span class="o">].</span><span class="n">nil?</span>
+      <span class="n">block_comment_start</span> <span class="o">=</span> <span class="no">Regexp</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;^</span><span class="se">\\</span><span class="s2">s*</span><span class="si">#{</span><span class="no">Regexp</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="vi">@options</span><span class="o">[</span><span class="ss">:comment_chars</span><span class="o">][</span><span class="ss">:multi</span><span class="o">][</span><span class="ss">:start</span><span class="o">]</span><span class="p">)</span><span class="si">}</span><span class="se">\\</span><span class="s2">s*$&quot;</span><span class="p">)</span>
+      <span class="n">block_comment_end</span>   <span class="o">=</span> <span class="no">Regexp</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;^</span><span class="se">\\</span><span class="s2">s*</span><span class="si">#{</span><span class="no">Regexp</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="vi">@options</span><span class="o">[</span><span class="ss">:comment_chars</span><span class="o">][</span><span class="ss">:multi</span><span class="o">][</span><span class="ss">:end</span><span class="o">]</span><span class="p">)</span><span class="si">}</span><span class="se">\\</span><span class="s2">s*$&quot;</span><span class="p">)</span>
+      <span class="k">if</span> <span class="vi">@options</span><span class="o">[</span><span class="ss">:comment_chars</span><span class="o">][</span><span class="ss">:multi</span><span class="o">][</span><span class="ss">:middle</span><span class="o">]</span>
+        <span class="n">block_comment_mid</span> <span class="o">=</span> <span class="no">Regexp</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;^</span><span class="se">\\</span><span class="s2">s*</span><span class="si">#{</span><span class="no">Regexp</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="vi">@options</span><span class="o">[</span><span class="ss">:comment_chars</span><span class="o">][</span><span class="ss">:multi</span><span class="o">][</span><span class="ss">:middle</span><span class="o">]</span><span class="p">)</span><span class="si">}</span><span class="se">\\</span><span class="s2">s?&quot;</span><span class="p">)</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">line</span><span class="o">|</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-29'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-29">&#182;</a>
+        </div>
+        <p>If we&rsquo;re currently in a comment block, check whether the line matches
+the <em>end</em> of a comment block.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>      <span class="k">if</span> <span class="n">in_comment_block</span>
+        <span class="k">if</span> <span class="n">block_comment_end</span> <span class="o">&amp;&amp;</span> <span class="n">line</span><span class="o">.</span><span class="n">match</span><span class="p">(</span> <span class="n">block_comment_end</span> <span class="p">)</span>
+          <span class="n">in_comment_block</span> <span class="o">=</span> <span class="kp">false</span>
+        <span class="k">else</span>
+          <span class="n">docs</span> <span class="o">&lt;&lt;</span> <span class="n">line</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span> <span class="n">block_comment_mid</span> <span class="o">||</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span> <span class="p">)</span>
+        <span class="k">end</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-30'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-30">&#182;</a>
+        </div>
+        <p>Otherwise, check whether the line matches the beginning of a block, or
+a single-line comment all on it&rsquo;s lonesome.  In either case, if there&rsquo;s
+code, start a new section</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>      <span class="k">else</span>
+        <span class="k">if</span> <span class="n">block_comment_start</span> <span class="o">&amp;&amp;</span> <span class="n">line</span><span class="o">.</span><span class="n">match</span><span class="p">(</span> <span class="n">block_comment_start</span> <span class="p">)</span>
+          <span class="n">in_comment_block</span> <span class="o">=</span> <span class="kp">true</span>
+          <span class="k">if</span> <span class="n">code</span><span class="o">.</span><span class="n">any?</span>
+            <span class="n">sections</span> <span class="o">&lt;&lt;</span> <span class="o">[</span><span class="n">docs</span><span class="p">,</span> <span class="n">code</span><span class="o">]</span>
+            <span class="n">docs</span><span class="p">,</span> <span class="n">code</span> <span class="o">=</span> <span class="o">[]</span><span class="p">,</span> <span class="o">[]</span>
+          <span class="k">end</span>
+        <span class="k">elsif</span> <span class="n">single_line_comment</span> <span class="o">&amp;&amp;</span> <span class="n">line</span><span class="o">.</span><span class="n">match</span><span class="p">(</span> <span class="n">single_line_comment</span> <span class="p">)</span>
+          <span class="k">if</span> <span class="n">code</span><span class="o">.</span><span class="n">any?</span>
+            <span class="n">sections</span> <span class="o">&lt;&lt;</span> <span class="o">[</span><span class="n">docs</span><span class="p">,</span> <span class="n">code</span><span class="o">]</span>
+            <span class="n">docs</span><span class="p">,</span> <span class="n">code</span> <span class="o">=</span> <span class="o">[]</span><span class="p">,</span> <span class="o">[]</span>
+          <span class="k">end</span>
+          <span class="n">docs</span> <span class="o">&lt;&lt;</span> <span class="n">line</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span> <span class="n">single_line_comment</span> <span class="o">||</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span> <span class="p">)</span>
+        <span class="k">else</span>
+          <span class="n">code</span> <span class="o">&lt;&lt;</span> <span class="n">line</span>
         <span class="k">end</span>
-        <span class="n">docs</span> <span class="o">&lt;&lt;</span> <span class="n">line</span>
-      <span class="k">else</span>
-        <span class="n">code</span> <span class="o">&lt;&lt;</span> <span class="n">line</span>
       <span class="k">end</span>
     <span class="k">end</span>
     <span class="n">sections</span> <span class="o">&lt;&lt;</span> <span class="o">[</span><span class="n">docs</span><span class="p">,</span> <span class="n">code</span><span class="o">]</span> <span class="k">if</span> <span class="n">docs</span><span class="o">.</span><span class="n">any?</span> <span class="o">||</span> <span class="n">code</span><span class="o">.</span><span class="n">any?</span>
-    <span class="n">sections</span>
+    <span class="n">normalize_leading_spaces</span><span class="p">(</span> <span class="n">sections</span> <span class="p">)</span>
   <span class="k">end</span></pre></div>
       </td>
     </tr>
-    <tr id='section-13'>
+    <tr id='section-31'>
       <td class=docs>
-        <div class="octowrap">
-          <a class="octothorpe" href="#section-13">#</a>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-31">&#182;</a>
+        </div>
+        <p>Normalizes documentation whitespace by checking for leading whitespace,
+removing it, and then removing the same amount of whitespace from each
+succeeding line.  That is:</p>
+
+<pre><code>def func():
+  """
+    Comment 1
+    Comment 2
+  """
+  print "omg!"
+</code></pre>
+
+<p>should yield a comment block of <code>Comment 1\nComment 2</code> and code of
+<code>def func():\n  print "omg!"</code></p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>  <span class="k">def</span> <span class="nf">normalize_leading_spaces</span><span class="p">(</span> <span class="n">sections</span> <span class="p">)</span>
+    <span class="n">sections</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">section</span><span class="o">|</span>
+      <span class="k">if</span> <span class="n">section</span><span class="o">.</span><span class="n">any?</span> <span class="o">&amp;&amp;</span> <span class="n">section</span><span class="o">[</span><span class="mi">0</span><span class="o">].</span><span class="n">any?</span>
+        <span class="n">leading_space</span> <span class="o">=</span> <span class="n">section</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">].</span><span class="n">match</span><span class="p">(</span> <span class="s2">&quot;^</span><span class="se">\s</span><span class="s2">+&quot;</span> <span class="p">)</span>
+        <span class="k">if</span> <span class="n">leading_space</span>
+          <span class="n">section</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span>
+            <span class="n">section</span><span class="o">[</span><span class="mi">0</span><span class="o">].</span><span class="n">map</span><span class="p">{</span> <span class="o">|</span><span class="n">line</span><span class="o">|</span> <span class="n">line</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sr"> /^</span><span class="si">#{</span><span class="n">leading_space</span><span class="o">.</span><span class="n">to_s</span><span class="si">}</span><span class="sr">/</span><span class="p">,</span> <span class="s1">&#39;&#39;</span> <span class="p">)</span> <span class="p">}</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+      <span class="n">section</span>
+    <span class="k">end</span>
+  <span class="k">end</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-32'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-32">&#182;</a>
         </div>
         <p>Take the list of paired <em>sections</em> two-tuples and split into two
 separate lists: one holding the comments with leaders removed and
@@ -238,17 +644,20 @@ one with the code blocks.</p>
         <div class='highlight'><pre>  <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="n">sections</span><span class="p">)</span>
     <span class="n">docs_blocks</span><span class="p">,</span> <span class="n">code_blocks</span> <span class="o">=</span> <span class="o">[]</span><span class="p">,</span> <span class="o">[]</span>
     <span class="n">sections</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">docs</span><span class="p">,</span><span class="n">code</span><span class="o">|</span>
-      <span class="n">docs_blocks</span> <span class="o">&lt;&lt;</span> <span class="n">docs</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">line</span><span class="o">|</span> <span class="n">line</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sr">/^\s*#\s?/</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-      <span class="n">code_blocks</span> <span class="o">&lt;&lt;</span> <span class="n">code</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+      <span class="n">docs_blocks</span> <span class="o">&lt;&lt;</span> <span class="n">docs</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+      <span class="n">code_blocks</span> <span class="o">&lt;&lt;</span> <span class="n">code</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">line</span><span class="o">|</span>
+        <span class="n">tabs</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/^(\t+)/</span><span class="p">)</span>
+        <span class="n">tabs</span> <span class="p">?</span> <span class="n">line</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sr">/^\t+/</span><span class="p">,</span> <span class="s1">&#39;  &#39;</span> <span class="o">*</span> <span class="n">tabs</span><span class="o">.</span><span class="n">captures</span><span class="o">[</span><span class="mi">0</span><span class="o">].</span><span class="n">length</span><span class="p">)</span> <span class="p">:</span> <span class="n">line</span>
+      <span class="k">end</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">end</span>
     <span class="o">[</span><span class="n">docs_blocks</span><span class="p">,</span> <span class="n">code_blocks</span><span class="o">]</span>
   <span class="k">end</span></pre></div>
       </td>
     </tr>
-    <tr id='section-14'>
+    <tr id='section-33'>
       <td class=docs>
-        <div class="octowrap">
-          <a class="octothorpe" href="#section-14">#</a>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-33">&#182;</a>
         </div>
         <p>Take the result of <code>split</code> and apply Markdown formatting to comments and
 syntax highlighting to source code.</p>
@@ -258,10 +667,10 @@ syntax highlighting to source code.</p>
     <span class="n">docs_blocks</span><span class="p">,</span> <span class="n">code_blocks</span> <span class="o">=</span> <span class="n">blocks</span></pre></div>
       </td>
     </tr>
-    <tr id='section-15'>
+    <tr id='section-34'>
       <td class=docs>
-        <div class="octowrap">
-          <a class="octothorpe" href="#section-15">#</a>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-34">&#182;</a>
         </div>
         <p>Combine all docs blocks into a single big markdown document with section
 dividers and run through the Markdown processor. Then split it back out
@@ -274,22 +683,97 @@ into separate sections.</p>
       <span class="nb">split</span><span class="p">(</span><span class="sr">/\n*&lt;h5&gt;DIVIDER&lt;\/h5&gt;\n*/m</span><span class="p">)</span></pre></div>
       </td>
     </tr>
-    <tr id='section-16'>
+    <tr id='section-35'>
       <td class=docs>
-        <div class="octowrap">
-          <a class="octothorpe" href="#section-16">#</a>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-35">&#182;</a>
         </div>
-        <p>Combine all code blocks into a single big stream and run through
-Pygments. We <code>popen</code> a read/write pygmentize process in the parent and
+        <p>Combine all code blocks into a single big stream with section dividers and
+run through either <code>pygmentize(1)</code> or <a href="http://pygments.appspot.com">http://pygments.appspot.com</a></p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="n">span</span><span class="p">,</span> <span class="n">espan</span> <span class="o">=</span> <span class="s1">&#39;&lt;span class=&quot;c.?&quot;&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;/span&gt;&#39;</span>
+    <span class="k">if</span> <span class="vi">@options</span><span class="o">[</span><span class="ss">:comment_chars</span><span class="o">][</span><span class="ss">:single</span><span class="o">]</span>
+      <span class="n">front</span> <span class="o">=</span> <span class="vi">@options</span><span class="o">[</span><span class="ss">:comment_chars</span><span class="o">][</span><span class="ss">:single</span><span class="o">]</span>
+      <span class="n">divider_input</span>  <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="si">#{</span><span class="n">front</span><span class="si">}</span><span class="s2"> DIVIDER</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+      <span class="n">divider_output</span> <span class="o">=</span> <span class="no">Regexp</span><span class="o">.</span><span class="n">new</span><span class="p">(</span>
+        <span class="o">[</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n*&quot;</span><span class="p">,</span>
+          <span class="n">span</span><span class="p">,</span>
+          <span class="no">Regexp</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">front</span><span class="p">),</span>
+          <span class="s1">&#39; DIVIDER&#39;</span><span class="p">,</span>
+          <span class="n">espan</span><span class="p">,</span>
+          <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n*&quot;</span>
+        <span class="o">].</span><span class="n">join</span><span class="p">,</span> <span class="no">Regexp</span><span class="o">::</span><span class="no">MULTILINE</span>
+      <span class="p">)</span>
+    <span class="k">else</span>
+      <span class="n">front</span> <span class="o">=</span> <span class="vi">@options</span><span class="o">[</span><span class="ss">:comment_chars</span><span class="o">][</span><span class="ss">:multi</span><span class="o">][</span><span class="ss">:start</span><span class="o">]</span>
+      <span class="n">back</span>  <span class="o">=</span> <span class="vi">@options</span><span class="o">[</span><span class="ss">:comment_chars</span><span class="o">][</span><span class="ss">:multi</span><span class="o">][</span><span class="ss">:end</span><span class="o">]</span>
+      <span class="n">divider_input</span>  <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="si">#{</span><span class="n">front</span><span class="si">}</span><span class="se">\n</span><span class="s2">DIVIDER</span><span class="se">\n</span><span class="si">#{</span><span class="n">back</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+      <span class="n">divider_output</span> <span class="o">=</span> <span class="no">Regexp</span><span class="o">.</span><span class="n">new</span><span class="p">(</span>
+        <span class="o">[</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n*&quot;</span><span class="p">,</span>
+          <span class="n">span</span><span class="p">,</span> <span class="no">Regexp</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">front</span><span class="p">),</span> <span class="n">espan</span><span class="p">,</span>
+          <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n&quot;</span><span class="p">,</span>
+          <span class="n">span</span><span class="p">,</span> <span class="s2">&quot;DIVIDER&quot;</span><span class="p">,</span> <span class="n">espan</span><span class="p">,</span>
+          <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n&quot;</span><span class="p">,</span>
+          <span class="n">span</span><span class="p">,</span> <span class="no">Regexp</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">back</span><span class="p">),</span> <span class="n">espan</span><span class="p">,</span>
+          <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n*&quot;</span>
+        <span class="o">].</span><span class="n">join</span><span class="p">,</span> <span class="no">Regexp</span><span class="o">::</span><span class="no">MULTILINE</span>
+      <span class="p">)</span>
+    <span class="k">end</span>
+
+    <span class="n">code_stream</span> <span class="o">=</span> <span class="n">code_blocks</span><span class="o">.</span><span class="n">join</span><span class="p">(</span> <span class="n">divider_input</span> <span class="p">)</span>
+
+    <span class="n">code_html</span> <span class="o">=</span>
+      <span class="k">if</span> <span class="n">pygmentize?</span>
+        <span class="n">highlight_pygmentize</span><span class="p">(</span><span class="n">code_stream</span><span class="p">)</span>
+      <span class="k">else</span>
+        <span class="n">highlight_webservice</span><span class="p">(</span><span class="n">code_stream</span><span class="p">)</span>
+      <span class="k">end</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-36'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-36">&#182;</a>
+        </div>
+        <p>Do some post-processing on the pygments output to split things back
+into sections and remove partial <code>&lt;pre&gt;</code> blocks.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="n">code_html</span> <span class="o">=</span> <span class="n">code_html</span><span class="o">.</span>
+      <span class="nb">split</span><span class="p">(</span><span class="n">divider_output</span><span class="p">)</span><span class="o">.</span>
+      <span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">code</span><span class="o">|</span> <span class="n">code</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sr">/\n?&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;/m</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span>
+      <span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">code</span><span class="o">|</span> <span class="n">code</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sr">/\n?&lt;\/pre&gt;&lt;\/div&gt;\n/m</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="p">}</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-37'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-37">&#182;</a>
+        </div>
+        <p>Lastly, combine the docs and code lists back into a list of two-tuples.</p>
+      </td>
+      <td class=code>
+        <div class='highlight'><pre>    <span class="n">docs_html</span><span class="o">.</span><span class="n">zip</span><span class="p">(</span><span class="n">code_html</span><span class="p">)</span>
+  <span class="k">end</span></pre></div>
+      </td>
+    </tr>
+    <tr id='section-38'>
+      <td class=docs>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-38">&#182;</a>
+        </div>
+        <p>We <code>popen</code> a read/write pygmentize process in the parent and
 then fork off a child process to write the input.</p>
       </td>
       <td class=code>
-        <div class='highlight'><pre>    <span class="n">code_html</span> <span class="o">=</span> <span class="kp">nil</span>
-    <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;|pygmentize -l ruby -f html&quot;</span><span class="p">,</span> <span class="s1">&#39;r+&#39;</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">fd</span><span class="o">|</span>
+        <div class='highlight'><pre>  <span class="k">def</span> <span class="nf">highlight_pygmentize</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+    <span class="n">code_html</span> <span class="o">=</span> <span class="kp">nil</span>
+    <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;|pygmentize -l </span><span class="si">#{</span><span class="vi">@options</span><span class="o">[</span><span class="ss">:language</span><span class="o">]</span><span class="si">}</span><span class="s2"> -O encoding=utf-8 -f html&quot;</span><span class="p">,</span> <span class="s1">&#39;r+&#39;</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">fd</span><span class="o">|</span>
       <span class="n">pid</span> <span class="o">=</span>
         <span class="nb">fork</span> <span class="p">{</span>
           <span class="n">fd</span><span class="o">.</span><span class="n">close_read</span>
-          <span class="n">fd</span><span class="o">.</span><span class="n">write</span> <span class="n">code_blocks</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2"># DIVIDER</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+          <span class="n">fd</span><span class="o">.</span><span class="n">write</span> <span class="n">code</span>
           <span class="n">fd</span><span class="o">.</span><span class="n">close_write</span>
           <span class="nb">exit!</span>
         <span class="p">}</span>
@@ -297,41 +781,34 @@ then fork off a child process to write the input.</p>
       <span class="n">code_html</span> <span class="o">=</span> <span class="n">fd</span><span class="o">.</span><span class="n">read</span>
       <span class="n">fd</span><span class="o">.</span><span class="n">close_read</span>
       <span class="no">Process</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span>
-    <span class="k">end</span></pre></div>
+    <span class="k">end</span>
+
+    <span class="n">code_html</span>
+  <span class="k">end</span></pre></div>
       </td>
     </tr>
-    <tr id='section-17'>
+    <tr id='section-39'>
       <td class=docs>
-        <div class="octowrap">
-          <a class="octothorpe" href="#section-17">#</a>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-39">&#182;</a>
         </div>
-        <p>Do some post-processing on the pygments output to split things back
-into sections and remove partial <code>&lt;pre&gt;</code> blocks.</p>
+        <p>Pygments is not one of those things that&rsquo;s trivial for a ruby user to install,
+so we&rsquo;ll fall back on a webservice to highlight the code if it isn&rsquo;t available.</p>
       </td>
       <td class=code>
-        <div class='highlight'><pre>    <span class="n">code_html</span> <span class="o">=</span> <span class="n">code_html</span><span class="o">.</span>
-      <span class="nb">split</span><span class="p">(</span><span class="sr">/\n*&lt;span class=&quot;c1&quot;&gt;# DIVIDER&lt;\/span&gt;\n*/m</span><span class="p">)</span><span class="o">.</span>
-      <span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">code</span><span class="o">|</span> <span class="n">code</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sr">/\n?&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;/m</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span>
-      <span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">code</span><span class="o">|</span> <span class="n">code</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sr">/\n?&lt;\/pre&gt;&lt;\/div&gt;\n/m</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="p">}</span></pre></div>
-      </td>
-    </tr>
-    <tr id='section-18'>
-      <td class=docs>
-        <div class="octowrap">
-          <a class="octothorpe" href="#section-18">#</a>
-        </div>
-        <p>Lastly, combine the docs and code lists back into a list of two-tuples.</p>
-      </td>
-      <td class=code>
-        <div class='highlight'><pre>    <span class="n">docs_html</span><span class="o">.</span><span class="n">zip</span><span class="p">(</span><span class="n">code_html</span><span class="p">)</span>
+        <div class='highlight'><pre>  <span class="k">def</span> <span class="nf">highlight_webservice</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+    <span class="no">Net</span><span class="o">::</span><span class="no">HTTP</span><span class="o">.</span><span class="n">post_form</span><span class="p">(</span>
+      <span class="no">URI</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;http://pygments.appspot.com/&#39;</span><span class="p">),</span>
+      <span class="p">{</span><span class="s1">&#39;lang&#39;</span> <span class="o">=&gt;</span> <span class="vi">@options</span><span class="o">[</span><span class="ss">:language</span><span class="o">]</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span> <span class="o">=&gt;</span> <span class="n">code</span><span class="p">}</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">body</span>
   <span class="k">end</span>
 <span class="k">end</span></pre></div>
       </td>
     </tr>
-    <tr id='section-19'>
+    <tr id='section-40'>
       <td class=docs>
-        <div class="octowrap">
-          <a class="octothorpe" href="#section-19">#</a>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-40">&#182;</a>
         </div>
         <p>And that&rsquo;s it.</p>
 
@@ -340,6 +817,6 @@ into sections and remove partial <code>&lt;pre&gt;</code> blocks.</p>
         <div class='highlight'><pre></pre></div>
       </td>
     </tr>
-    </table>
+  </table>
 </div>
 </body>

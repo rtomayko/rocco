@@ -8,6 +8,16 @@
 <body>
 <div id='container'>
   <div id="background"></div>
+  <div id="jump_to">
+    Jump To &hellip;
+    <div id="jump_wrapper">
+      <div id="jump_page">
+        <a class="source" href="rocco.html">rocco.rb</a>
+        <a class="source" href="layout.html">layout.rb</a>
+        <a class="source" href="tasks.html">tasks.rb</a>
+        </div>
+    </div>
+  </div>
   <table cellspacing=0 cellpadding=0>
   <thead>
     <tr>
@@ -18,8 +28,8 @@
   <tbody>
     <tr id='section-1'>
       <td class=docs>
-        <div class="octowrap">
-          <a class="octothorpe" href="#section-1">#</a>
+        <div class="pilwrap">
+          <a class="pilcrow" href="#section-1">&#182;</a>
         </div>
         
 
@@ -30,8 +40,11 @@
 <span class="k">class</span> <span class="nc">Rocco</span><span class="o">::</span><span class="no">Layout</span> <span class="o">&lt;</span> <span class="no">Mustache</span>
   <span class="nb">self</span><span class="o">.</span><span class="n">template_path</span> <span class="o">=</span> <span class="no">File</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">__FILE__</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="kp">nil</span><span class="p">)</span>
     <span class="vi">@doc</span> <span class="o">=</span> <span class="n">doc</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">file</span><span class="o">.</span><span class="n">nil?</span>
+      <span class="no">Rocco</span><span class="o">::</span><span class="no">Layout</span><span class="o">.</span><span class="n">template_file</span> <span class="o">=</span> <span class="n">file</span>
+    <span class="k">end</span>
   <span class="k">end</span>
 
   <span class="k">def</span> <span class="nf">title</span>
@@ -42,9 +55,29 @@
     <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="vi">@doc</span><span class="o">.</span><span class="n">sections</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">docs</span><span class="p">,</span><span class="n">code</span><span class="o">|</span>
       <span class="p">{</span>
-        <span class="ss">:docs</span>  <span class="o">=&gt;</span> <span class="n">docs</span><span class="p">,</span>
-        <span class="ss">:code</span>  <span class="o">=&gt;</span> <span class="n">code</span><span class="p">,</span>
-        <span class="ss">:num</span>   <span class="o">=&gt;</span> <span class="p">(</span><span class="n">num</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="ss">:docs</span>       <span class="o">=&gt;</span>  <span class="n">docs</span><span class="p">,</span>
+        <span class="ss">:docs?</span>      <span class="o">=&gt;</span>  <span class="o">!</span><span class="n">docs</span><span class="o">.</span><span class="n">empty?</span><span class="p">,</span>
+        <span class="ss">:header?</span>    <span class="o">=&gt;</span>  <span class="sr">/^&lt;h.&gt;.+&lt;\/h.&gt;$/</span><span class="o">.</span><span class="n">match</span><span class="p">(</span> <span class="n">docs</span> <span class="p">),</span>
+
+        <span class="ss">:code</span>       <span class="o">=&gt;</span>  <span class="n">code</span><span class="p">,</span>
+        <span class="ss">:code?</span>      <span class="o">=&gt;</span>  <span class="o">!</span><span class="n">code</span><span class="o">.</span><span class="n">empty?</span><span class="p">,</span>
+
+        <span class="ss">:empty?</span>     <span class="o">=&gt;</span>  <span class="p">(</span> <span class="n">code</span><span class="o">.</span><span class="n">empty?</span> <span class="o">&amp;&amp;</span> <span class="n">docs</span><span class="o">.</span><span class="n">empty?</span> <span class="p">),</span>
+        <span class="ss">:num</span>        <span class="o">=&gt;</span>  <span class="p">(</span><span class="n">num</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">)</span>
+      <span class="p">}</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">sources?</span>
+    <span class="vi">@doc</span><span class="o">.</span><span class="n">sources</span><span class="o">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="mi">1</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">sources</span>
+    <span class="vi">@doc</span><span class="o">.</span><span class="n">sources</span><span class="o">.</span><span class="n">sort</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">source</span><span class="o">|</span>
+      <span class="p">{</span>
+        <span class="ss">:path</span> <span class="o">=&gt;</span> <span class="n">source</span><span class="p">,</span>
+        <span class="ss">:basename</span> <span class="o">=&gt;</span> <span class="no">File</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">source</span><span class="p">),</span>
+        <span class="ss">:url</span> <span class="o">=&gt;</span> <span class="no">File</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">source</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="o">-</span><span class="mi">2</span><span class="o">].</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.html&#39;</span>
       <span class="p">}</span>
     <span class="k">end</span>
   <span class="k">end</span>
