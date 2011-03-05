@@ -13,6 +13,7 @@ class RoccoSourceListTests < Test::Unit::TestCase
       "URLs correctly generated for files in a flat directory structure"
     )
   end
+
   def test_heiarachical_sourcelist
     r = Rocco.new( 'a/issue26.sh', [ 'a/issue26a.sh', 'b/issue26b.sh', 'c/issue26c.sh' ] ) {
         "# Comment 1\n# Comment 1\nprint 'omg!'"
@@ -25,5 +26,4 @@ class RoccoSourceListTests < Test::Unit::TestCase
       "URLs correctly generated for files in a flat directory structure"
     )
   end
-
 end

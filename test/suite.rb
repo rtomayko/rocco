@@ -1,6 +1,4 @@
 require 'test/unit'
 
-tests = Dir["#{File.dirname(__FILE__)}/test_*.rb"]
-tests.each do |file|
-  require file
-end
+Dir["#{File.dirname(__FILE__)}/test_*.rb"].
+each { |file| require file }

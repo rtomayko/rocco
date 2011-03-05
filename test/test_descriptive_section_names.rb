@@ -13,6 +13,7 @@ class RoccoDescriptiveSectionNamesTests < Test::Unit::TestCase
       "The rendered HTML should link to a named section"
     )
   end
+
   def test_section_numbering
     r = roccoize( "filename.rb", "# # Header 1\ndef codeblock\nend\n# Comment 1\ndef codeblock1\nend\n# # Header 2\ndef codeblock2\nend" )
     html = r.to_html
