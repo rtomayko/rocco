@@ -65,7 +65,7 @@ end
 #
 # *    `:language`: specifies which Pygments lexer to use if one can't be
 #      auto-detected from the filename.  _Defaults to `ruby`_.
-# 
+#
 # *    `:comment_chars`, which specifies the comment characters of the
 #      target language. _Defaults to `#`_.
 #
@@ -89,6 +89,7 @@ class Rocco
       else
         File.read(filename)
       end
+
     defaults = {
       :language      => 'ruby',
       :comment_chars => '#',
@@ -100,28 +101,33 @@ class Rocco
     if detect_language() != "text"
       # then assign the detected language to `:language`, and look for
       # comment characters based on that language
-      @options[:language]         = detect_language()
-      @options[:comment_chars]    = generate_comment_chars()
+      @options[:language] = detect_language()
+      @options[:comment_chars] = generate_comment_chars()
 
     # If we didn't detect a language, but the user provided one, use it
     # to look around for comment characters to override the default.
     elsif @options[:language] != defaults[:language]
-      @options[:comment_chars]    = generate_comment_chars()
+      @options[:comment_chars] = generate_comment_chars()
 
     # If neither is true, then convert the default comment character string
     # into the comment_char syntax (we'll discuss that syntax in detail when
     # we get to `generate_comment_chars()` in a moment.
     else
-      @options[:comment_chars]    = { :single => @options[:comment_chars], :multi => nil }
+      @options[:comment_chars] = {
+        :single => @options[:comment_chars],
+        :multi => nil
+      }
     end
 
-    # Turn `:comment_chars` into a regex matching a series of spaces, the 
+    # Turn `:comment_chars` into a regex matching a series of spaces, the
     # `:comment_chars` string, and the an optional space.  We'll use that
     # to detect single-line comments.
-    @comment_pattern            = Regexp.new("^\\s*#{@options[:comment_chars][:single]}\s?")
+    @comment_pattern =
+      Regexp.new("^\\s*#{@options[:comment_chars][:single]}\s?")
 
-    # `parse()` the file contents stored in `@data`.  Run the result through `split()`
-    # and that result through `highlight()` to generate the final section list.
+    # `parse()` the file contents stored in `@data`.  Run the result through
+    # `split()` and that result through `highlight()` to generate the final
+    # section list.
     @sections = highlight(split(parse(@data)))
   end
 
@@ -152,11 +158,8 @@ class Rocco
 
   # Returns `true` if `pygmentize` is available locally, `false` otherwise.
   def pygmentize?
-    # Memoize the result
-    if @_pygmentize.nil?
-      @_pygmentize = ENV['PATH'].split(':').any? { |dir| executable?("#{dir}/pygmentize") }
-    end
-    @_pygmentize
+    @_pygmentize ||= ENV['PATH'].split(':').
+      any? { |dir| executable?("#{dir}/pygmentize") }
   end
 
   # If `pygmentize` is available, we can use it to autodetect a file's
@@ -166,24 +169,26 @@ class Rocco
   #
   # We'll memoize the result, as we'll call this a few times.
   def detect_language
-    @_language ||= begin
-        if pygmentize?
-            lang = %x[pygmentize -N #{@file}].strip!
-        else
-            "text"
-        end
-    end
+    @_language ||=
+      if pygmentize?
+        %x[pygmentize -N #{@file}].strip!
+      else
+        "text"
+      end
   end
 
-  # Given a file's language, we should be able to autopopulate the 
+  # Given a file's language, we should be able to autopopulate the
   # `comment_chars` variables for single-line comments.  If we don't
   # have comment characters on record for a given language, we'll
   # use the user-provided `:comment_char` option (which defaults to
   # `#`).
   #
   # Comment characters are listed as:
-  # 
-  #     { :single => "//", :multi_start => "/**", :multi_middle => "*", :multi_end => "*/" }
+  #
+  #     { :single       => "//",
+  #       :multi_start  => "/**",
+  #       :multi_middle => "*",
+  #       :multi_end    => "*/" }
   #
   # `:single` denotes the leading character of a single-line comment.
   # `:multi_start` denotes the string that should appear alone on a
@@ -193,9 +198,9 @@ class Rocco
   # close a block of documentation.  That is:
   #
   #     /**                 [:multi][:start]
-  #      *                  [:multi][:middle] 
+  #      *                  [:multi][:middle]
   #      ...
-  #      *                  [:multi][:middle] 
+  #      *                  [:multi][:middle]
   #      */                 [:multi][:end]
   #
   # If a language only has one type of comment, the missing type
@@ -203,29 +208,54 @@ class Rocco
   #
   # At the moment, we're only returning `:single`.  Consider this
   # groundwork for block comment parsing.
+  COMMENT_STYLES  = {
+    "bash"          =>  { :single => "#", :multi => nil },
+    "c"             =>  {
+      :single => "//",
+      :multi  => { :start => "/**", :middle => "*", :end => "*/" }
+    },
+    "coffee-script" =>  {
+      :single => "#",
+      :multi  => { :start => "###", :middle => nil, :end => "###" }
+    },
+    "cpp" =>  {
+      :single => "//",
+      :multi  => { :start => "/**", :middle => "*", :end => "*/" }
+    },
+    "css"           =>  {
+      :single => nil,
+      :multi  => { :start => "/**", :middle => "*", :end => "*/" }
+    },
+    "java"          =>  {
+      :single => "//",
+      :multi  => { :start => "/**", :middle => "*", :end => "*/" }
+    },
+    "js"            =>  {
+      :single => "//",
+      :multi  => { :start => "/**", :middle => "*", :end => "*/" }
+    },
+    "lua"           =>  {
+      :single => "--",
+      :multi => nil
+    },
+    "python"        =>  {
+      :single => "#",
+      :multi  => { :start => '"""', :middle => nil, :end => '"""' }
+    },
+    "rb"            =>  {
+      :single => "#",
+      :multi  => { :start => '=begin', :middle => nil, :end => '=end' }
+    },
+    "scheme"        =>  { :single => ";;",  :multi => nil },
+  }
+
   def generate_comment_chars
-    @_commentchar ||= begin
-      language        = @options[:language]
-      comment_styles  = {
-        "bash"          =>  { :single => "#",   :multi => nil },
-        "c"             =>  { :single => "//",  :multi => { :start => "/**",    :middle => "*", :end => "*/" } },
-        "coffee-script" =>  { :single => "#",   :multi => { :start => "###",    :middle => nil, :end => "###" } },
-        "cpp"           =>  { :single => "//",  :multi => { :start => "/**",    :middle => "*", :end => "*/" } },
-        "css"           =>  { :single => nil,   :multi => { :start => "/**",    :middle => "*", :end => "*/" } },
-        "java"          =>  { :single => "//",  :multi => { :start => "/**",    :middle => "*", :end => "*/" } },
-        "js"            =>  { :single => "//",  :multi => { :start => "/**",    :middle => "*", :end => "*/" } },
-        "lua"           =>  { :single => "--",  :multi => nil },
-        "python"        =>  { :single => "#",   :multi => { :start => '"""',    :middle => nil, :end => '"""' } },
-        "rb"            =>  { :single => "#",   :multi => { :start => '=begin', :middle => nil, :end => '=end' } },
-        "scheme"        =>  { :single => ";;",  :multi => nil },
-      }
-        
-      if comment_styles[language]
-        comment_styles[language]
+    @_commentchar ||=
+      if COMMENT_STYLES[@options[:language]]
+        COMMENT_STYLES[@options[:language]]
       else
         { :single => @options[:comment_chars], :multi => nil }
       end
-    end
   end
 
   # Internal Parsing and Highlighting
@@ -243,14 +273,16 @@ class Rocco
     # PEP 263 encoding information in python sourcefiles, and the similar ruby
     # 1.9 syntax.
     lines.shift if lines[0] =~ /^\#\!/
-    lines.shift if lines[0] =~ /coding[:=]\s*[-\w.]+/ and [ "python", "rb" ].include? @options[:language]
+    lines.shift if lines[0] =~ /coding[:=]\s*[-\w.]+/ &&
+                   [ "python", "rb" ].include?(@options[:language])
 
     # To detect both block comments and single-line comments, we'll set
     # up a tiny state machine, and loop through each line of the file.
-    # This requires an `in_comment_block` boolean, and a few regular 
+    # This requires an `in_comment_block` boolean, and a few regular
     # expressions for line tests.
-    in_comment_block    = false
-    single_line_comment, block_comment_start, block_comment_mid, block_comment_end = nil, nil, nil, nil
+    in_comment_block = false
+    single_line_comment, block_comment_start, block_comment_mid, block_comment_end =
+      nil, nil, nil, nil
     if not @options[:comment_chars][:single].nil?
       single_line_comment = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:single])}\\s?")
     end
@@ -313,7 +345,8 @@ class Rocco
       if section.any? && section[0].any?
         leading_space = section[0][0].match( "^\s+" )
         if leading_space
-          section[0] = section[0].map{ |line| line.sub( /^#{leading_space.to_s}/, '' ) }
+          section[0] =
+            section[0].map{ |line| line.sub( /^#{leading_space.to_s}/, '' ) }
         end
       end
       section
@@ -350,21 +383,43 @@ class Rocco
 
     # Combine all code blocks into a single big stream with section dividers and
     # run through either `pygmentize(1)` or <http://pygments.appspot.com>
-    if not @options[:comment_chars][:single].nil?
-      divider_input = "\n\n#{@options[:comment_chars][:single]} DIVIDER\n\n"
-      divider_output = /\n*<span class="c.?">#{Regexp.escape(@options[:comment_chars][:single])} DIVIDER<\/span>\n*/m
+    span, espan = '<span class="c.?">', '</span>'
+    if @options[:comment_chars][:single]
+      front = @options[:comment_chars][:single]
+      divider_input  = "\n\n#{front} DIVIDER\n\n"
+      divider_output = Regexp.new(
+        [ "\\n*",
+          span,
+          Regexp.escape(front),
+          ' DIVIDER',
+          espan,
+          "\\n*"
+        ].join, Regexp::MULTILINE
+      )
     else
-      divider_input = "\n\n#{@options[:comment_chars][:multi][:start]}\nDIVIDER\n#{@options[:comment_chars][:multi][:end]}\n\n"
-      divider_output = /\n*<span class="c.?">#{Regexp.escape(@options[:comment_chars][:multi][:start])}<\/span>\n<span class="c.?">DIVIDER<\/span>\n<span class="c.?">#{Regexp.escape(@options[:comment_chars][:multi][:end])}<\/span>\n*/m 
+      front = @options[:comment_chars][:multi][:start]
+      back  = @options[:comment_chars][:multi][:end]
+      divider_input  = "\n\n#{front}\nDIVIDER\n#{back}\n\n"
+      divider_output = Regexp.new(
+        [ "\\n*",
+          span, Regexp.escape(front), espan,
+          "\\n",
+          span, "DIVIDER", espan,
+          "\\n",
+          span, Regexp.escape(back), espan,
+          "\\n*"
+        ].join, Regexp::MULTILINE
+      )
     end
 
     code_stream = code_blocks.join( divider_input )
 
-    if pygmentize? 
-      code_html = highlight_pygmentize(code_stream)
-    else 
-      code_html = highlight_webservice(code_stream)
-    end
+    code_html =
+      if pygmentize?
+        highlight_pygmentize(code_stream)
+      else
+        highlight_webservice(code_stream)
+      end
 
     # Do some post-processing on the pygments output to split things back
     # into sections and remove partial `<pre>` blocks.
@@ -397,7 +452,7 @@ class Rocco
 
     code_html
   end
-  
+
   # Pygments is not one of those things that's trivial for a ruby user to install,
   # so we'll fall back on a webservice to highlight the code if it isn't available.
   def highlight_webservice(code)
