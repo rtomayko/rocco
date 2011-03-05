@@ -1,4 +1,5 @@
-require File.dirname(__FILE__) + '/helper'
+# encoding: utf-8
+require File.expand_path('../helper', __FILE__)
 
 class RoccoIssueTests < Test::Unit::TestCase
     def test_issue07_incorrect_parsing_in_c_mode

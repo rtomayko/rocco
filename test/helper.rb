@@ -1,4 +1,4 @@
-rootdir = File.dirname(File.dirname(__FILE__))
+rootdir = File.expand_path('../../lib', __FILE__)
 $LOAD_PATH.unshift "#{rootdir}/lib"
 
 require 'test/unit'

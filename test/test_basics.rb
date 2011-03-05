@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/helper'
+require File.expand_path('../helper', __FILE__)
 
 class RoccoBasicTests < Test::Unit::TestCase
   def test_rocco_exists_and_is_instancable

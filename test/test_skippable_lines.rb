@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/helper'
+require File.expand_path('../helper', __FILE__)
 
 class RoccoSkippableLines < Test::Unit::TestCase
   def test_shebang_first_line

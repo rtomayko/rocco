@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/helper'
+require File.expand_path('../helper', __FILE__)
 
 class RoccoDescriptiveSectionNamesTests < Test::Unit::TestCase
   def test_section_name
