@@ -93,7 +93,7 @@ class Rocco
     defaults = {
       :language      => 'ruby',
       :comment_chars => '#',
-      :template_file => nil
+      :template_file => File.expand_path('../rocco/layout.mustache', __FILE__)
     }
     @options = defaults.merge(options)
 
