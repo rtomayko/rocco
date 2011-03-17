@@ -2,7 +2,7 @@ require 'mustache'
 require 'pathname'
 
 class Rocco::Layout < Mustache
-  self.template_path = "#{File.dirname(__FILE__)}/.."
+  self.template_path = "#{File.dirname(__FILE__)}/."
 
   def initialize(doc, file=nil)
     @doc = doc
