@@ -368,10 +368,25 @@ class Rocco
     [docs_blocks, code_blocks]
   end
 
+  # Take a list of block comments and convert Docblock @annotations to
+  # Markdown syntax.
+  def docblock(docs)
+    docs.map do |doc|
+      doc.split("\n").map do |line|
+        line.match(/^@\w+/) ? line.sub(/^@(\w+)\s+/, '> **\1** ')+"  " : line
+      end.join("\n")
+    end
+  end
+
   # Take the result of `split` and apply Markdown formatting to comments and
   # syntax highlighting to source code.
   def highlight(blocks)
     docs_blocks, code_blocks = blocks
+
+    # Pre-process Docblock @annotations.
+    if @options[:docblocks]
+      docs_blocks = docblock(docs_blocks)
+    end
 
     # Combine all docs blocks into a single big markdown document with section
     # dividers and run through the Markdown processor. Then split it back out
