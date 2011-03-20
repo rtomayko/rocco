@@ -238,6 +238,10 @@ class Rocco
       :single => "--",
       :multi => nil
     },
+    "php"          =>  {
+      :single => "//",
+      :multi  => { :start => "/**", :middle => "*", :end => "*/" }
+    },
     "python"        =>  {
       :single => "#",
       :multi  => { :start => '"""', :middle => nil, :end => '"""' }
