@@ -289,29 +289,50 @@ class Rocco
     if not @options[:comment_chars][:multi].nil?
       block_comment_start = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:multi][:start])}\\s*$")
       block_comment_end   = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:multi][:end])}\\s*$")
+      block_comment_one_liner = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:multi][:start])}\\s*(.*?)\\s*#{Regexp.escape(@options[:comment_chars][:multi][:end])}\\s*$")
+      block_comment_start_with = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:multi][:start])}\\s*(.*?)$")
+      block_comment_end_with = Regexp.new("\\s*(.*?)\\s*#{Regexp.escape(@options[:comment_chars][:multi][:end])}\\s*$")
       if @options[:comment_chars][:multi][:middle]
         block_comment_mid = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:multi][:middle])}\\s?")
       end
     end
     lines.each do |line|
       # If we're currently in a comment block, check whether the line matches
-      # the _end_ of a comment block.
+      # the _end_ of a comment block or the _end_ of a comment block with a
+      # comment.
       if in_comment_block
         if block_comment_end && line.match( block_comment_end )
           in_comment_block = false
+        elsif block_comment_end_with && line.match( block_comment_end_with )
+          in_comment_block = false
+          docs << line.match( block_comment_end_with ).captures.first.
+                        sub( block_comment_mid || '', '' )
         else
           docs << line.sub( block_comment_mid || '', '' )
         end
-      # Otherwise, check whether the line matches the beginning of a block, or
-      # a single-line comment all on it's lonesome.  In either case, if there's
-      # code, start a new section
+      # Otherwise, check whether the line matches a one-liner block comment,
+      # the beginning of a block, the beginning of a block with a comment, or a
+      # single-line comment.  In any case, if there's code, start a new section.
       else
-        if block_comment_start && line.match( block_comment_start )
+        if block_comment_one_liner && line.match( block_comment_one_liner )
+          if code.any?
+            sections << [docs, code]
+            docs, code = [], []
+          end
+          docs << line.match( block_comment_one_liner ).captures.first
+        elsif block_comment_start && line.match( block_comment_start )
           in_comment_block = true
           if code.any?
             sections << [docs, code]
             docs, code = [], []
           end
+        elsif block_comment_start_with && line.match( block_comment_start_with )
+          in_comment_block = true
+          if code.any?
+            sections << [docs, code]
+            docs, code = [], []
+          end
+          docs << line.match( block_comment_start_with ).captures.first
         elsif single_line_comment && line.match( single_line_comment )
           if code.any?
             sections << [docs, code]
