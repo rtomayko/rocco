@@ -230,6 +230,10 @@ class Rocco
       :single => "//",
       :multi  => { :start => "/**", :middle => "*", :end => "*/" }
     },
+    "csharp"        =>  {
+      :single => "//",
+      :multi  => { :start => "/**", :middle => "*", :end => "*/" }
+    },
     "js"            =>  {
       :single => "//",
       :multi  => { :start => "/**", :middle => "*", :end => "*/" }
