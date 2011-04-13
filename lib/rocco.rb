@@ -212,41 +212,50 @@ class Rocco
     "bash"          =>  { :single => "#", :multi => nil },
     "c"             =>  {
       :single => "//",
-      :multi  => { :start => "/**", :middle => "*", :end => "*/" }
+      :multi  => { :start => "/**", :middle => "*", :end => "*/" },
+      :heredoc => nil
     },
     "coffee-script" =>  {
       :single => "#",
-      :multi  => { :start => "###", :middle => nil, :end => "###" }
+      :multi  => { :start => "###", :middle => nil, :end => "###" },
+      :heredoc => nil
     },
     "cpp" =>  {
       :single => "//",
-      :multi  => { :start => "/**", :middle => "*", :end => "*/" }
+      :multi  => { :start => "/**", :middle => "*", :end => "*/" },
+      :heredoc => nil
     },
     "css"           =>  {
       :single => nil,
-      :multi  => { :start => "/**", :middle => "*", :end => "*/" }
+      :multi  => { :start => "/**", :middle => "*", :end => "*/" },
+      :heredoc => nil
     },
     "java"          =>  {
       :single => "//",
-      :multi  => { :start => "/**", :middle => "*", :end => "*/" }
+      :multi  => { :start => "/**", :middle => "*", :end => "*/" },
+      :heredoc => nil
     },
     "js"            =>  {
       :single => "//",
-      :multi  => { :start => "/**", :middle => "*", :end => "*/" }
+      :multi  => { :start => "/**", :middle => "*", :end => "*/" },
+      :heredoc => nil
     },
     "lua"           =>  {
       :single => "--",
-      :multi => nil
+      :multi => nil,
+      :heredoc => nil
     },
     "python"        =>  {
       :single => "#",
-      :multi  => { :start => '"""', :middle => nil, :end => '"""' }
+      :multi  => { :start => '"""', :middle => nil, :end => '"""' },
+      :heredoc => nil
     },
     "rb"            =>  {
       :single => "#",
-      :multi  => { :start => '=begin', :middle => nil, :end => '=end' }
+      :multi  => { :start => '=begin', :middle => nil, :end => '=end' },
+      :heredoc => "<<-"
     },
-    "scheme"        =>  { :single => ";;",  :multi => nil },
+    "scheme"        =>  { :single => ";;",  :multi => nil, :heredoc => nil },
   }
 
   def generate_comment_chars
@@ -254,7 +263,7 @@ class Rocco
       if COMMENT_STYLES[@options[:language]]
         COMMENT_STYLES[@options[:language]]
       else
-        { :single => @options[:comment_chars], :multi => nil }
+        { :single => @options[:comment_chars], :multi => nil, :heredoc => nil }
       end
   end
 
@@ -279,8 +288,9 @@ class Rocco
     # To detect both block comments and single-line comments, we'll set
     # up a tiny state machine, and loop through each line of the file.
     # This requires an `in_comment_block` boolean, and a few regular
-    # expressions for line tests.
+    # expressions for line tests.  We'll do the same for fake heredoc parsing.
     in_comment_block = false
+    in_heredoc = false
     single_line_comment, block_comment_start, block_comment_mid, block_comment_end =
       nil, nil, nil, nil
     if not @options[:comment_chars][:single].nil?
@@ -293,6 +303,9 @@ class Rocco
         block_comment_mid = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:multi][:middle])}\\s?")
       end
     end
+    if not @options[:comment_chars][:heredoc].nil?
+      heredoc_start = Regexp.new("#{Regexp.escape(@options[:comment_chars][:heredoc])}(\\S+)$")
+    end
     lines.each do |line|
       # If we're currently in a comment block, check whether the line matches
       # the _end_ of a comment block.
@@ -302,11 +315,22 @@ class Rocco
         else
           docs << line.sub( block_comment_mid || '', '' )
         end
-      # Otherwise, check whether the line matches the beginning of a block, or
-      # a single-line comment all on it's lonesome.  In either case, if there's
-      # code, start a new section
+      # If we're currently in a heredoc, we're looking for the end of the
+      # heredoc, and everything it contains is code.
+      elsif in_heredoc
+        if line.match(Regexp.new("^#{Regexp.escape(in_heredoc)}$"))
+          in_heredoc = false
+        end
+        code << line
+      # Otherwise, check whether the line starts a heredoc. If so, note the end
+      # pattern, and the line is code.  Otherwise check whether the line matches
+      # the beginning of a block, or a single-line comment all on it's lonesome.
+      # In either case, if there's code, start a new section.
       else
-        if block_comment_start && line.match( block_comment_start )
+        if heredoc_start && line.match( heredoc_start )
+          in_heredoc = $1
+          code << line
+        elsif block_comment_start && line.match( block_comment_start )
           in_comment_block = true
           if code.any?
             sections << [docs, code]
