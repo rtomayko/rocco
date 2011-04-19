@@ -171,7 +171,7 @@ class Rocco
   def detect_language
     @_language ||=
       if pygmentize?
-        %x[pygmentize -N #{@file}].strip!
+        %x[pygmentize -N #{@file}].strip.split('+').first
       else
         "text"
       end
@@ -228,6 +228,11 @@ class Rocco
       :multi  => { :start => "/**", :middle => "*", :end => "*/" },
       :heredoc => nil
     },
+    "html"           =>  {
+      :single => nil,
+      :multi => { :start => '<!--', :middle => nil, :end => '-->' },
+      :heredoc => nil
+    },
     "java"          =>  C_STYLE_COMMENTS,
     "js"            =>  C_STYLE_COMMENTS,
     "lua"           =>  {
@@ -247,6 +252,11 @@ class Rocco
       :heredoc => "<<-"
     },
     "scheme"        =>  { :single => ";;",  :multi => nil, :heredoc => nil },
+    "xml"           =>  {
+      :single => nil,
+      :multi => { :start => '<!--', :middle => nil, :end => '-->' },
+      :heredoc => nil
+    },
   }
 
   def generate_comment_chars
@@ -420,7 +430,7 @@ class Rocco
       divider_output = Regexp.new(
         [ "\\n*",
           span,
-          Regexp.escape(front),
+          Regexp.escape(CGI.escapeHTML(front)),
           ' DIVIDER',
           espan,
           "\\n*"
@@ -432,11 +442,11 @@ class Rocco
       divider_input  = "\n\n#{front}\nDIVIDER\n#{back}\n\n"
       divider_output = Regexp.new(
         [ "\\n*",
-          span, Regexp.escape(front), espan,
+          span, Regexp.escape(CGI.escapeHTML(front)), espan,
           "\\n",
           span, "DIVIDER", espan,
           "\\n",
-          span, Regexp.escape(back), espan,
+          span, Regexp.escape(CGI.escapeHTML(back)), espan,
           "\\n*"
         ].join, Regexp::MULTILINE
       )
