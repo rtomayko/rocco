@@ -225,6 +225,11 @@ class Rocco
       :multi  => { :start => "/**", :middle => "*", :end => "*/" },
       :heredoc => nil
     },
+    "csharp" => {
+      :single => "//",
+      :multi  => { :start => "/**", :middle => "*", :end => "*/" },
+      :heredoc => nil
+    },
     "css"           =>  {
       :single => nil,
       :multi  => { :start => "/**", :middle => "*", :end => "*/" },
