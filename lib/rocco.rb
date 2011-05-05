@@ -251,6 +251,7 @@ class Rocco
       :multi  => { :start => '=begin', :middle => nil, :end => '=end' },
       :heredoc => "<<-"
     },
+    "scala"         =>  C_STYLE_COMMENTS,
     "scheme"        =>  { :single => ";;",  :multi => nil, :heredoc => nil },
     "xml"           =>  {
       :single => nil,
