@@ -314,14 +314,14 @@ class Rocco
       # the _end_ of a comment block or the _end_ of a comment block with a
       # comment.
       if in_comment_block
-        if block_comment_end && line.match( block_comment_end )
+        if block_comment_end && line.match(block_comment_end)
           in_comment_block = false
-        elsif block_comment_end_with && line.match( block_comment_end_with )
+        elsif block_comment_end_with && line.match(block_comment_end_with)
           in_comment_block = false
-          docs << line.match( block_comment_end_with ).captures.first.
-                        sub( block_comment_mid || '', '' )
+          docs << line.match(block_comment_end_with).captures.first.
+                        sub(block_comment_mid || '', '')
         else
-          docs << line.sub( block_comment_mid || '', '' )
+          docs << line.sub(block_comment_mid || '', '')
         end
       # If we're currently in a heredoc, we're looking for the end of the
       # heredoc, and everything it contains is code.
@@ -335,41 +335,41 @@ class Rocco
       # the beginning of a block, or a single-line comment all on it's lonesome.
       # In either case, if there's code, start a new section.
       else
-        if heredoc_start && line.match( heredoc_start )
+        if heredoc_start && line.match(heredoc_start)
           in_heredoc = $1
           code << line
-        elsif block_comment_one_liner && line.match( block_comment_one_liner )
+        elsif block_comment_one_liner && line.match(block_comment_one_liner)
           if code.any?
             sections << [docs, code]
             docs, code = [], []
           end
-          docs << line.match( block_comment_one_liner ).captures.first
-        elsif block_comment_start && line.match( block_comment_start )
+          docs << line.match(block_comment_one_liner).captures.first
+        elsif block_comment_start && line.match(block_comment_start)
           in_comment_block = true
           if code.any?
             sections << [docs, code]
             docs, code = [], []
           end
-        elsif block_comment_start_with && line.match( block_comment_start_with )
+        elsif block_comment_start_with && line.match(block_comment_start_with)
           in_comment_block = true
           if code.any?
             sections << [docs, code]
             docs, code = [], []
           end
-          docs << line.match( block_comment_start_with ).captures.first
-        elsif single_line_comment && line.match( single_line_comment )
+          docs << line.match(block_comment_start_with).captures.first
+        elsif single_line_comment && line.match(single_line_comment)
           if code.any?
             sections << [docs, code]
             docs, code = [], []
           end
-          docs << line.sub( single_line_comment || '', '' )
+          docs << line.sub(single_line_comment || '', '')
         else
           code << line
         end
       end
     end
     sections << [docs, code] if docs.any? || code.any?
-    normalize_leading_spaces( sections )
+    normalize_leading_spaces(sections)
   end
 
   # Normalizes documentation whitespace by checking for leading whitespace,
@@ -385,13 +385,13 @@ class Rocco
   #
   # should yield a comment block of `Comment 1\nComment 2` and code of
   # `def func():\n  print "omg!"`
-  def normalize_leading_spaces( sections )
+  def normalize_leading_spaces(sections)
     sections.map do |section|
       if section.any? && section[0].any?
-        leading_space = section[0][0].match( "^\s+" )
+        leading_space = section[0][0].match("^\s+")
         if leading_space
           section[0] =
-            section[0].map{ |line| line.sub( /^#{leading_space.to_s}/, '' ) }
+            section[0].map{ |line| line.sub(/^#{leading_space.to_s}/, '') }
         end
       end
       section
@@ -472,7 +472,7 @@ class Rocco
       )
     end
 
-    code_stream = code_blocks.join( divider_input )
+    code_stream = code_blocks.join(divider_input)
 
     code_html =
       if pygmentize?
