@@ -58,6 +58,8 @@ class Rocco
   # `Rocco::Task.new` takes a task name, the destination directory docs
   # should be built under, and a source file pattern or file list.
   class Task
+    include Rake::DSL if defined?(Rake::DSL)
+
     def initialize(task_name, dest='docs/', sources='lib/**/*.rb', options={})
       @name = task_name
       @dest = dest[-1] == ?/ ? dest : "#{dest}/"
