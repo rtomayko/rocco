@@ -1,10 +1,13 @@
+$LOAD_PATH.unshift 'lib'
+require "rocco"
+
 Gem::Specification.new do |s|
   s.specification_version = 2 if s.respond_to? :specification_version=
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
 
   s.name = 'rocco'
-  s.version = '0.6'
-  s.date = '2011-03-05'
+  s.version = Rocco::VERSION
+  s.date = Time.now.strftime('%Y-%m-%d')
 
   s.description = "Docco in Ruby"
   s.summary     = s.description
