@@ -437,8 +437,7 @@ class Rocco
     # dividers and run through the Markdown processor. Then split it back out
     # into separate sections.
     markdown = docs_blocks.join("\n\n##### DIVIDER\n\n")
-    docs_html = Markdown.new(markdown, :smart).
-      to_html.
+    docs_html = process_markdown(markdown).
       split(/\n*<h5>DIVIDER<\/h5>\n*/m)
 
     # Combine all code blocks into a single big stream with section dividers and
@@ -490,6 +489,11 @@ class Rocco
 
     # Lastly, combine the docs and code lists back into a list of two-tuples.
     docs_html.zip(code_html)
+  end
+
+  # Convert Markdown to classy HTML.
+  def process_markdown(text)
+    Markdown.new(text, :smart).to_html
   end
 
   # We `popen` a read/write pygmentize process in the parent and
