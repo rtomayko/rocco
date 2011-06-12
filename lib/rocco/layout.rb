@@ -15,6 +15,10 @@ class Rocco::Layout < Mustache
     File.basename(@doc.file)
   end
 
+  def file
+    @doc.file
+  end
+
   def sections
     num = 0
     @doc.sections.map do |docs,code|
