@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
 
   s.name = 'rocco'
-  s.version = '0.7'
+  s.version = '0.8'
   s.date = '2011-06-19'
 
   s.description = "Docco in Ruby"
@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
     Rakefile
     bin/rocco
     lib/rocco.rb
+    lib/rocco/comment_styles.rb
     lib/rocco/layout.mustache
     lib/rocco/layout.rb
     lib/rocco/tasks.rb
@@ -34,10 +35,13 @@ Gem::Specification.new do |s|
     test/helper.rb
     test/suite.rb
     test/test_basics.rb
+    test/test_block_comment_styles.rb
     test/test_block_comments.rb
     test/test_comment_normalization.rb
     test/test_commentchar_detection.rb
     test/test_descriptive_section_names.rb
+    test/test_docblock_annotations.rb
+    test/test_heredoc.rb
     test/test_language_detection.rb
     test/test_reported_issues.rb
     test/test_skippable_lines.rb

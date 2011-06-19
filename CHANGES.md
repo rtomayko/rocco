@@ -1,6 +1,16 @@
 CHANGES
 =======
 
+0.8 (2011-06-19)
+----------------
+
+https://github.com/rtomayko/rocco/compare/0.7...0.8
+
+0.7 (2011-05-22)
+----------------
+
+https://github.com/rtomayko/rocco/compare/0.6...0.7
+
 0.6 (2011-03-05)
 ----------------
 
