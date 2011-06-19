@@ -1,13 +1,15 @@
-$LOAD_PATH.unshift 'lib'
-require "rocco"
+# rocco.gemspec
+#
+# To update this file's version, date, and file list, change the VERSION
+# constant in lib/rocco.rb and run `rake rocco.gemspec`.
 
 Gem::Specification.new do |s|
   s.specification_version = 2 if s.respond_to? :specification_version=
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
 
   s.name = 'rocco'
-  s.version = Rocco::VERSION
-  s.date = Time.now.strftime('%Y-%m-%d')
+  s.version = '0.7'
+  s.date = '2011-06-19'
 
   s.description = "Docco in Ruby"
   s.summary     = s.description
