@@ -31,16 +31,15 @@
 
 #### Prerequisites
 
-# We'll need a Markdown library. [RDiscount][rd], if we're lucky. Otherwise,
-# issue a warning and fall back on using BlueCloth.
-#
-# [rd]: http://github.com/rtomayko/rdiscount
-begin
-  require 'rdiscount'
-rescue LoadError => boom
-  warn "WARNING: #{boom}. Trying bluecloth."
-  require 'bluecloth'
-  Markdown = BlueCloth
+# We'll need a Markdown library. Try to load one if not already established.
+if !defined?(Markdown)
+  libs = %w[redcarpet rdiscount bluecloth]
+  begin
+    require libs.shift
+  rescue LoadError => boom
+    retry if libs.any?
+    raise
+  end
 end
 
 # We use [{{ mustache }}](http://defunkt.github.com/mustache/) for

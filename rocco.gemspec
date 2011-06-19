@@ -48,7 +48,7 @@ Gem::Specification.new do |s|
   s.executables = ["rocco"]
 
   s.test_files = s.files.select {|path| path =~ /^test\/.*_test.rb/}
-  s.add_dependency 'rdiscount'
+  s.add_dependency 'redcarpet'
   s.add_dependency 'mustache'
 
   s.has_rdoc = false
