@@ -72,7 +72,7 @@ end
 #   to `nil` (that is, Mustache will use `./lib/rocco/layout.mustache`)_.
 #
 class Rocco
-  VERSION = '0.8'
+  VERSION = '0.8.1'
 
   def initialize(filename, sources=[], options={}, &block)
     @file       = filename
