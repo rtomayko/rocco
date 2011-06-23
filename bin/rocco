@@ -61,34 +61,6 @@ if sources.empty?
   abort_with_note "#{File.basename($0)}: no input <file>s given"
 end
 
-# What a fucking mess. Most of this is duplicated in rocco.rb too.
-libdir = File.expand_path('../../lib', __FILE__).sub(/^#{Dir.pwd}\//, '')
-begin
-  require 'rdiscount'
-  require 'rocco'
-rescue LoadError
-  case $!.to_s
-  when /rdiscount/
-    if !defined?(Gem)
-      warn "warn: #$!. trying again with rubygems"
-      require 'rubygems'
-      retry
-    else
-      require 'bluecloth'
-      Markdown = BlueCloth
-      $LOADED_FEATURES << 'rdiscount.rb'
-      retry
-    end
-  when /rocco/
-    if !$:.include?(libdir)
-      warn "warn: #$!. trying again with #{libdir} on load path"
-      $:.unshift(libdir)
-      retry
-    end
-  end
-  raise
-end
-
 # Run each file through Rocco and write output.
 sources.each do |filename|
   rocco = Rocco.new(filename, sources, options)
