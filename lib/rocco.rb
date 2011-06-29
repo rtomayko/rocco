@@ -152,6 +152,11 @@ class Rocco
     Rocco::Layout.new(self, @options[:template_file]).render
   end
 
+  require 'rocco/index'
+  def index
+    Rocco::Index.new(self, @options[:template_file]).render
+  end
+
   # Helper Functions
   # ----------------
 

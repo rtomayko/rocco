@@ -37,6 +37,7 @@ options = {}
 ARGV.options { |o|
   o.program_name = File.basename($0)
   o.on("-o", "--output=DIR") { |dir| output_dir = dir }
+  o.on("-i", "--index") { |index| options[:index] = true }
   o.on("-l", "--language=LANG") { |lang| options[:language] = lang }
   o.on("-c", "--comment-chars=CHARS") { |chars| options[:comment_chars] = Regexp.escape(chars) }
   o.on("-t", "--template=TEMPLATE") { |template| options[:template_file] = template }
@@ -90,11 +91,16 @@ rescue LoadError
 end
 
 # Run each file through Rocco and write output.
+r = nil
 sources.each do |filename|
   rocco = Rocco.new(filename, sources, options)
+  r ||= rocco
   dest = filename.sub(Regexp.new("#{File.extname(filename)}$"),".html")
   dest = File.join(output_dir, dest) if output_dir != '.'
   puts "rocco: #{filename} -> #{dest}"
   FileUtils.mkdir_p File.dirname(dest)
   File.open(dest, 'wb') { |fd| fd.write(rocco.to_html) }
+end
+if r && options[:index]
+  File.open(File.join(output_dir, "rocco_index.html"), 'wb') { |fd| fd.write(r.index) }
 end
