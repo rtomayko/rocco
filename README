@@ -1,5 +1,4 @@
 
-
                   ___       ___       ___       ___       ___
                  /\  \     /\  \     /\  \     /\  \     /\  \
                 /::\  \   /::\  \   /::\  \   /::\  \   /::\  \
@@ -13,7 +12,7 @@
     Rocco is  a quick-and-dirty,  literate-programming-style documentation
     generator for Ruby. See the Rocco generated docs for more information:
 
-                    <http://rtomayko.github.com/rocco/>
+                    <http://rtomayko.github.com/rocco/rocco.html>
 
 
     Rocco is a port of,  and borrows heavily from, Docco  -- the original
