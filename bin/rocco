@@ -41,6 +41,7 @@ ARGV.options { |o|
   o.on("-c", "--comment-chars=CHARS") { |chars| options[:comment_chars] = Regexp.escape(chars) }
   o.on("-t", "--template=TEMPLATE") { |template| options[:template_file] = template }
   o.on("-d", "--docblocks") { options[:docblocks] = true }
+  o.on("-s", "--stylesheet=STYLESHEET") { |stylesheet| options[:stylesheet] = stylesheet }
   o.on_tail("-h", "--help") { usage($stdout, 0) }
   o.parse!
 } or abort_with_note
