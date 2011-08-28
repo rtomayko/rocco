@@ -34,6 +34,7 @@ end
 output_dir = '.'
 sources = []
 options = {}
+github = false
 ARGV.options { |o|
   o.program_name = File.basename($0)
   o.on("-o", "--output=DIR") { |dir| output_dir = dir }
@@ -41,6 +42,7 @@ ARGV.options { |o|
   o.on("-c", "--comment-chars=CHARS") { |chars| options[:comment_chars] = Regexp.escape(chars) }
   o.on("-t", "--template=TEMPLATE") { |template| options[:template_file] = template }
   o.on("-d", "--docblocks") { options[:docblocks] = true }
+  o.on("-gh", "--github") { github = true }
   o.on_tail("-h", "--help") { usage($stdout, 0) }
   o.parse!
 } or abort_with_note
@@ -70,3 +72,20 @@ sources.each do |filename|
   FileUtils.mkdir_p File.dirname(dest)
   File.open(dest, 'wb') { |fd| fd.write(rocco.to_html) }
 end
+if github
+  require 'git'
+  g = Git.open
+  g.checkout('gh-page')
+  # Clear all of the old html files
+  Dir["**/*.html"].each {|f| File.delete f}
+  sources.each do |filename|
+    rocco = Rocco.new(filename, sources, options)
+    dest = filename.sub(Regexp.new("#{File.extname(filename)}$"),".html")
+    dest = File.join(output_dir, dest) if output_dir != '.'
+    puts "rocco: #{filename} -> #{dest}"
+    FileUtils.mkdir_p File.dirname(dest)
+    File.open(dest, 'wb') { |fd| fd.write(rocco.to_html) }
+  end
+  # Generate Index if thats possible
+end
+
