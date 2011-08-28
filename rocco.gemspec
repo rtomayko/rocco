@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
 
   s.name = 'rocco'
-  s.version = '0.8.1'
-  s.date = '2011-06-22'
+  s.version = '0.8.2'
+  s.date = '2011-08-27'
 
   s.description = "Docco in Ruby"
   s.summary     = s.description
