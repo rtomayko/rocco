@@ -13,6 +13,7 @@
 
 require 'optparse'
 require 'fileutils'
+require 'rocco'
 
 # Write usage message to stdout and exit.
 def usage(stream=$stderr, status=1)
