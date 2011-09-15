@@ -50,9 +50,12 @@ require 'mustache'
 require 'net/http'
 
 # Code is run through [Pygments](http://pygments.org/) for syntax
-# highlighting. If it's not installed, locally, use a webservice.
+# highlighting. We use 'Albino' for locally installed [Pygments].
+# If it's not installed use a webservice.
 if !ENV['PATH'].split(':').any? { |dir| File.executable?("#{dir}/pygmentize") }
   warn "WARNING: Pygments not found. Using webservice."
+else
+  require 'albino'
 end
 
 #### Public Interface
@@ -451,25 +454,10 @@ class Rocco
     Markdown.new(text, :smart).to_html
   end
 
-  # We `popen` a read/write pygmentize process in the parent and
-  # then fork off a child process to write the input.
+  # We use 'Albino' to run pygmentize installed locally
   def highlight_pygmentize(code)
-    code_html = nil
-    open("|pygmentize -l #{@options[:language]} -O encoding=utf-8 -f html", 'r+') do |fd|
-      pid =
-        fork {
-          fd.close_read
-          fd.write code
-          fd.close_write
-          exit!
-        }
-      fd.close_write
-      code_html = fd.read
-      fd.close_read
-      Process.wait(pid)
-    end
-
-    code_html
+    @syntaxer = Albino.new(code, lexer = @options[:language], format = :html, encoding = 'utf-8')
+    @syntaxer.execute.out
   end
 
   # Pygments is not one of those things that's trivial for a ruby user to install,
