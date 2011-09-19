@@ -51,7 +51,17 @@ require 'net/http'
 
 # Code is run through [Pygments](http://pygments.org/) for syntax
 # highlighting. If it's not installed, locally, use a webservice.
-if !ENV['PATH'].split(':').any? { |dir| File.executable?("#{dir}/pygmentize") }
+if RUBY_PLATFORM =~ /(win|w)32$/
+  # windows machine
+  path_dirs = ENV['PATH'].split(';')
+  found_pygmentize = path_dirs.any? { |dir| File.executable?("#{dir}/pygmentize.exe") }
+else
+  # *nix system
+  path_dirs = ENV['PATH'].split(':')
+  found_pygmentize = path_dirs.any? { |dir| File.executable?("#{dir}/pygmentize") }
+end
+
+if !found_pygmentize
   warn "WARNING: Pygments not found. Using webservice."
 end
 
