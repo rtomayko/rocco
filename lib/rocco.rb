@@ -33,7 +33,7 @@
 
 # We'll need a Markdown library. Try to load one if not already established.
 if !defined?(Markdown)
-  libs = %w[redcarpet rdiscount bluecloth]
+  libs = %w[redcarpet/compat rdiscount bluecloth]
   begin
     require libs.shift
   rescue LoadError => boom
