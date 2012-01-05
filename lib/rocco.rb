@@ -394,6 +394,7 @@ class Rocco
     markdown = docs_blocks.join("\n\n##### DIVIDER\n\n")
     docs_html = process_markdown(markdown).
       split(/\n*<h5>DIVIDER<\/h5>\n*/m)
+    docs_html << "" if docs_html.empty?
 
     # Combine all code blocks into a single big stream with section dividers and
     # run through either `pygmentize(1)` or <http://pygments.appspot.com>
