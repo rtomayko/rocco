@@ -28,11 +28,9 @@ class RoccoIssueTests < Test::Unit::TestCase
       "UTF-8 input files ought behave correctly."
     )
     # and, just for grins, ensure that iso-8859-1 works too.
-    # @TODO:    Is this really the correct behavior?  Converting text
-    #           to UTF-8 on the way out is probably preferable.
-    r = Rocco.new( File.dirname(__FILE__) + "/fixtures/issue10.iso-8859-1.rb" )
+    r = Rocco.new( File.dirname(__FILE__) + "/fixtures/issue10.iso-8859-1.rb", [], :encoding => 'ISO-8859-1' )
     assert_equal(
-      "<p>hello w\366rld</p>\n",
+      "<p>hello wörld</p>\n",
       r.sections[0][0],
       "ISO-8859-1 input should probably also behave correctly."
     )
