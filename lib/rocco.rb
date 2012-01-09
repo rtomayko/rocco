@@ -116,8 +116,7 @@ class Rocco
     # Turn `:comment_chars` into a regex matching a series of spaces, the
     # `:comment_chars` string, and the an optional space.  We'll use that
     # to detect single-line comments.
-    @comment_pattern =
-      Regexp.new("^\\s*#{@options[:comment_chars][:single]}\s?")
+    @comment_pattern = Regexp.new("^\\s*#{@options[:comment_chars][:single]}\s?")
 
     # `parse()` the file contents stored in `@data`.  Run the result through
     # `split()` and that result through `highlight()` to generate the final
