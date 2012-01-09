@@ -32,8 +32,8 @@
 #### Prerequisites
 
 # We'll need a Markdown library. Try to load one if not already established.
-if !defined?(Markdown)
   libs = %w[redcarpet rdiscount bluecloth]
+ unless defined?(Markdown)
   begin
     require libs.shift
   rescue LoadError => boom
@@ -51,7 +51,7 @@ require 'net/http'
 
 # Code is run through [Pygments](http://pygments.org/) for syntax
 # highlighting. If it's not installed, locally, use a webservice.
-if !ENV['PATH'].split(':').any? { |dir| File.executable?("#{dir}/pygmentize") }
+unless ENV['PATH'].split(':').any? { |dir| File.executable?("#{dir}/pygmentize") }
   warn "WARNING: Pygments not found. Using webservice."
 end
 
