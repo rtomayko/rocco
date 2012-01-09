@@ -217,8 +217,7 @@ class Rocco
   # form `[docs, code]` where both elements are arrays containing the
   # raw lines parsed from the input file, comment characters stripped.
   def parse(data)
-    sections, docs, code = [], [], []
-    lines = data.split("\n")
+    sections, docs, code, lines = [], [], [], data.split("\n")
 
     # The first line is ignored if it is a shebang line.  We also ignore the
     # PEP 263 encoding information in python sourcefiles, and the similar ruby
