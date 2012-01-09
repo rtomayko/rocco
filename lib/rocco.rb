@@ -334,9 +334,10 @@ class Rocco
       if section.any? && section[0].any?
         leading_space = section[0][0].match("^\s+")
         if leading_space
-          section[0] =
-            section[0].map{ |line| line.sub(/^#{leading_space.to_s}/, '') }
         end
+      if section.any? && section.first.any?
+        leading_space = section.first.first.match("^\s+")
+        section[0] = section.first.map{ |l| l.sub(/^#{leading_space}/, '') } if leading_space
       end
       section
     end
