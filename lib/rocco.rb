@@ -32,12 +32,12 @@
 #### Prerequisites
 
 # We'll need a Markdown library. Try to load one if not already established.
-if !defined?(Markdown)
-  libs = %w[redcarpet rdiscount bluecloth]
+unless defined?(Markdown)
+  markdown_libraries = %w[redcarpet rdiscount bluecloth]
   begin
-    require libs.shift
+    require markdown_libraries.shift
   rescue LoadError => boom
-    retry if libs.any?
+    retry if markdown_libraries.any?
     raise
   end
 end
@@ -51,7 +51,7 @@ require 'net/http'
 
 # Code is run through [Pygments](http://pygments.org/) for syntax
 # highlighting. If it's not installed, locally, use a webservice.
-if !ENV['PATH'].split(':').any? { |dir| File.executable?("#{dir}/pygmentize") }
+unless ENV['PATH'].split(':').any? { |dir| File.executable?("#{dir}/pygmentize") }
   warn "WARNING: Pygments not found. Using webservice."
 end
 
@@ -77,55 +77,45 @@ end
 class Rocco
   VERSION = '0.8.2'
 
-  def initialize(filename, sources=[], options={}, &block)
+  def initialize(filename, sources=[], options={})
     @file       = filename
     @sources    = sources
 
     # When `block` is given, it must read the contents of the file using
     # whatever means necessary and return it as a string. With no `block`,
     # the file is read to retrieve data.
-    @data =
-      if block_given?
-        yield
-      else
-        File.read(filename)
-      end
+    @data = if block_given? then yield else File.read(filename) end
 
-    defaults = {
+    @options =  {
       :language      => 'ruby',
       :comment_chars => '#',
       :template_file => nil,
-      :stylesheet => 'http://jashkenas.github.com/docco/resources/docco.css'
-    }
-    @options = defaults.merge(options)
+      :stylesheet    => 'http://jashkenas.github.com/docco/resources/docco.css'
+    }.merge(options)
 
     # If we detect a language
-    if detect_language() != "text"
+    if "text" != detect_language
       # then assign the detected language to `:language`, and look for
       # comment characters based on that language
-      @options[:language] = detect_language()
-      @options[:comment_chars] = generate_comment_chars()
+      @options[:language] = detect_language
+      @options[:comment_chars] = generate_comment_chars
 
     # If we didn't detect a language, but the user provided one, use it
     # to look around for comment characters to override the default.
-    elsif @options[:language] != defaults[:language]
-      @options[:comment_chars] = generate_comment_chars()
+    elsif @options[:language]
+      @options[:comment_chars] = generate_comment_chars
 
     # If neither is true, then convert the default comment character string
     # into the comment_char syntax (we'll discuss that syntax in detail when
     # we get to `generate_comment_chars()` in a moment.
     else
-      @options[:comment_chars] = {
-        :single => @options[:comment_chars],
-        :multi => nil
-      }
+      @options[:comment_chars] = { :single => @options[:comment_chars], :multi => nil }
     end
 
     # Turn `:comment_chars` into a regex matching a series of spaces, the
     # `:comment_chars` string, and the an optional space.  We'll use that
     # to detect single-line comments.
-    @comment_pattern =
-      Regexp.new("^\\s*#{@options[:comment_chars][:single]}\s?")
+    @comment_pattern = Regexp.new("^\\s*#{@options[:comment_chars][:single]}\s?")
 
     # `parse()` the file contents stored in `@data`.  Run the result through
     # `split()` and that result through `highlight()` to generate the final
@@ -229,8 +219,7 @@ class Rocco
   # form `[docs, code]` where both elements are arrays containing the
   # raw lines parsed from the input file, comment characters stripped.
   def parse(data)
-    sections = []
-    docs, code = [], []
+    sections, docs, code = [], [], []
     lines = data.split("\n")
 
     # The first line is ignored if it is a shebang line.  We also ignore the
@@ -384,16 +373,13 @@ class Rocco
     docs_blocks, code_blocks = blocks
 
     # Pre-process Docblock @annotations.
-    if @options[:docblocks]
-      docs_blocks = docblock(docs_blocks)
-    end
+    docs_blocks = docblock(docs_blocks) if @options[:docblocks]
 
     # Combine all docs blocks into a single big markdown document with section
     # dividers and run through the Markdown processor. Then split it back out
     # into separate sections.
     markdown = docs_blocks.join("\n\n##### DIVIDER\n\n")
-    docs_html = process_markdown(markdown).
-      split(/\n*<h5>DIVIDER<\/h5>\n*/m)
+    docs_html = process_markdown(markdown).split(/\n*<h5>DIVIDER<\/h5>\n*/m)
 
     # Combine all code blocks into a single big stream with section dividers and
     # run through either `pygmentize(1)` or <http://pygments.appspot.com>
@@ -475,10 +461,9 @@ class Rocco
   # Pygments is not one of those things that's trivial for a ruby user to install,
   # so we'll fall back on a webservice to highlight the code if it isn't available.
   def highlight_webservice(code)
-    Net::HTTP.post_form(
-      URI.parse('http://pygments.appspot.com/'),
-      {'lang' => @options[:language], 'code' => code}
-    ).body
+    url = URI.parse 'http://pygments.appspot.com/'
+    options = { 'lang' => @options[:language], 'code' => code}
+    Net::HTTP.post_form(url, options).body
   end
 end
 
