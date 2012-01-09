@@ -55,6 +55,8 @@ unless ENV['PATH'].split(':').any? { |dir| File.executable?("#{dir}/pygmentize")
   warn "WARNING: Pygments not found. Using webservice."
 end
 
+require File.join(File.dirname(__FILE__), "rocco", "version")
+
 #### Public Interface
 
 # `Rocco.new` takes a source `filename`, an optional list of source filenames
@@ -75,7 +77,6 @@ end
 #   rendered template.  _Defaults to `http://jashkenas.github.com/docco/resources/docco.css`
 #   (the original docco stylesheet)
 class Rocco
-  VERSION = '0.8.2'
 
   def initialize(filename, sources=[], options={})
     @file       = filename
