@@ -361,9 +361,9 @@ class Rocco
   # Markdown syntax.
   def docblock(docs)
     docs.map do |doc|
-      doc.split("\n").map do |line|
-        line.match(/^@\w+/) ? line.sub(/^@(\w+)\s+/, '> **\1** ')+"  " : line
-      end.join("\n")
+      doc.split("\n").map do |l|
+        if l.match(/^@\w+/) then l.sub(/^@(\w+)\s+/, '> **\1** ') + "  " else l end
+      end.join "\n"
     end
   end
 
