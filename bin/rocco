@@ -47,8 +47,18 @@ ARGV.options { |o|
   o.parse!
 } or abort_with_note
 
+if RUBY_PLATFORM =~ /(win|w)32$/
+  # windows machine
+  path_dirs = ENV['PATH'].split(';')
+  found_pygmentize = path_dirs.any? { |dir| File.executable?("#{dir}/pygmentize.exe") }
+else
+  # *nix system
+  path_dirs = ENV['PATH'].split(':')
+  found_pygmentize = path_dirs.any? { |dir| File.executable?("#{dir}/pygmentize") }
+end
+
 # Use http://pygments.appspot.com in case `pygmentize(1)` isn't available.
-if ! ENV['PATH'].split(':').any? { |dir| File.exist?("#{dir}/pygmentize") }
+if !found_pygmentize
   unless options[:webservice]
     $stderr.puts "pygmentize not in PATH; using pygments.appspot.com instead"
     options[:webservice] = true
