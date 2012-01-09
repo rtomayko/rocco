@@ -95,16 +95,16 @@ class Rocco
     @options = defaults.merge(options)
 
     # If we detect a language
-    if detect_language() != "text"
+    if "text" != detect_language
       # then assign the detected language to `:language`, and look for
       # comment characters based on that language
-      @options[:language] = detect_language()
-      @options[:comment_chars] = generate_comment_chars()
+      @options[:language] = detect_language
+      @options[:comment_chars] = generate_comment_chars
 
     # If we didn't detect a language, but the user provided one, use it
     # to look around for comment characters to override the default.
     elsif @options[:language] != defaults[:language]
-      @options[:comment_chars] = generate_comment_chars()
+      @options[:comment_chars] = generate_comment_chars
 
     # If neither is true, then convert the default comment character string
     # into the comment_char syntax (we'll discuss that syntax in detail when
