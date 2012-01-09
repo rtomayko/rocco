@@ -464,10 +464,9 @@ class Rocco
   # Pygments is not one of those things that's trivial for a ruby user to install,
   # so we'll fall back on a webservice to highlight the code if it isn't available.
   def highlight_webservice(code)
-    Net::HTTP.post_form(
-      URI.parse('http://pygments.appspot.com/'),
-      {'lang' => @options[:language], 'code' => code}
-    ).body
+    url = URI.parse 'http://pygments.appspot.com/'
+    options = { 'lang' => @options[:language], 'code' => code}
+    Net::HTTP.post_form(url, options).body
   end
 end
 
