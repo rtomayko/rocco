@@ -86,13 +86,12 @@ class Rocco
     # the file is read to retrieve data.
     @data = if block_given? then yield else File.read(filename) end
 
-    defaults = {
+    @options =  {
       :language      => 'ruby',
       :comment_chars => '#',
       :template_file => nil,
-      :stylesheet => 'http://jashkenas.github.com/docco/resources/docco.css'
-    }
-    @options = defaults.merge(options)
+      :stylesheet    => 'http://jashkenas.github.com/docco/resources/docco.css'
+    }.merge(options)
 
     # If we detect a language
     if "text" != detect_language
@@ -103,7 +102,7 @@ class Rocco
 
     # If we didn't detect a language, but the user provided one, use it
     # to look around for comment characters to override the default.
-    elsif @options[:language] != defaults[:language]
+    elsif @options[:language]
       @options[:comment_chars] = generate_comment_chars
 
     # If neither is true, then convert the default comment character string
