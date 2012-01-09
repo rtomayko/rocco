@@ -77,7 +77,7 @@ end
 class Rocco
   VERSION = '0.8.2'
 
-  def initialize(filename, sources=[], options={}, &block)
+  def initialize(filename, sources=[], options={})
     @file       = filename
     @sources    = sources
 
