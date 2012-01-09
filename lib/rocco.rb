@@ -107,8 +107,7 @@ class Rocco
     # If neither is true, then convert the default comment character string
     # into the comment_char syntax (we'll discuss that syntax in detail when
     # we get to `generate_comment_chars()` in a moment.
-    else
-      @options[:comment_chars] = { :single => @options[:comment_chars], :multi => nil }
+    else @options[:comment_chars] = { :single => @options[:comment_chars], :multi => nil }
     end
 
     # Turn `:comment_chars` into a regex matching a series of spaces, the
