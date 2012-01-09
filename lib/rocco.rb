@@ -374,9 +374,7 @@ class Rocco
     docs_blocks, code_blocks = blocks
 
     # Pre-process Docblock @annotations.
-    if @options[:docblocks]
-      docs_blocks = docblock(docs_blocks)
-    end
+    docs_blocks = docblock(docs_blocks) if @options[:docblocks]
 
     # Combine all docs blocks into a single big markdown document with section
     # dividers and run through the Markdown processor. Then split it back out
