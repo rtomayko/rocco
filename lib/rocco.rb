@@ -32,12 +32,12 @@
 #### Prerequisites
 
 # We'll need a Markdown library. Try to load one if not already established.
-  libs = %w[redcarpet rdiscount bluecloth]
  unless defined?(Markdown)
+  markdown_libraries = %w[redcarpet rdiscount bluecloth]
   begin
-    require libs.shift
+    require markdown_libraries.shift
   rescue LoadError => boom
-    retry if libs.any?
+    retry if markdown_libraries.any?
     raise
   end
 end
