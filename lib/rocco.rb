@@ -204,12 +204,9 @@ class Rocco
   include CommentStyles
 
   def generate_comment_chars
+    comment_hash = { :single => @options[:comment_chars], :multi => nil, :heredoc => nil }
     @_commentchar ||=
-      if COMMENT_STYLES[@options[:language]]
-        COMMENT_STYLES[@options[:language]]
-      else
-        { :single => @options[:comment_chars], :multi => nil, :heredoc => nil }
-      end
+      COMMENT_STYLES[@options[:language]] or comment_hash
   end
 
   # Internal Parsing and Highlighting
