@@ -32,7 +32,7 @@
 #### Prerequisites
 
 # We'll need a Markdown library. Try to load one if not already established.
-unless defined?(Markdown)
+unless defined? Markdown
   markdown_libraries = %w[redcarpet rdiscount bluecloth]
   begin
     require markdown_libraries.shift
@@ -120,7 +120,7 @@ class Rocco
     # `parse()` the file contents stored in `@data`.  Run the result through
     # `split()` and that result through `highlight()` to generate the final
     # section list.
-    @sections = highlight(split(parse(@data)))
+    @sections = highlight split parse @data
   end
 
   # The filename as given to `Rocco.new`.
@@ -350,8 +350,8 @@ class Rocco
     sections.each do |docs,code|
       docs_blocks << docs.join("\n")
       code_blocks << code.map do |line|
-        tabs = line.match(/^(\t+)/)
         tabs ? line.sub(/^\t+/, '  ' * tabs.captures[0].length) : line
+        tabs = l.match /^(\t+)/
       end.join("\n")
     end
     [docs_blocks, code_blocks]
@@ -378,7 +378,7 @@ class Rocco
     # Combine all docs blocks into a single big markdown document with section
     # dividers and run through the Markdown processor. Then split it back out
     # into separate sections.
-    markdown = docs_blocks.join("\n\n##### DIVIDER\n\n")
+    markdown = docs_blocks.join "\n\n##### DIVIDER\n\n"
     docs_html = process_markdown(markdown).split(/\n*<h5>DIVIDER<\/h5>\n*/m)
 
     # Combine all code blocks into a single big stream with section dividers and
@@ -390,7 +390,7 @@ class Rocco
       divider_output = Regexp.new(
         [ "\\n*",
           span,
-          Regexp.escape(CGI.escapeHTML(front)),
+          Regexp.escape(CGI.escapeHTML front),
           ' DIVIDER',
           espan,
           "\\n*"
@@ -402,11 +402,11 @@ class Rocco
       divider_input  = "\n\n#{front}\nDIVIDER\n#{back}\n\n"
       divider_output = Regexp.new(
         [ "\\n*",
-          span, Regexp.escape(CGI.escapeHTML(front)), espan,
+          span, Regexp.escape(CGI.escapeHTML front), espan,
           "\\n",
           span, "DIVIDER", espan,
           "\\n",
-          span, Regexp.escape(CGI.escapeHTML(back)), espan,
+          span, Regexp.escape(CGI.escapeHTML back), espan,
           "\\n*"
         ].join, Regexp::MULTILINE
       )
