@@ -349,9 +349,9 @@ class Rocco
     docs_blocks, code_blocks = [], []
     sections.each do |docs,code|
       docs_blocks << docs.join("\n")
-      code_blocks << code.map do |line|
-        tabs = line.match(/^(\t+)/)
-        tabs ? line.sub(/^\t+/, '  ' * tabs.captures[0].length) : line
+      code_blocks << code.map do |l|
+        tabs = l.match /^(\t+)/
+        if tabs then l.sub(/^\t+/, '  ' * tabs.captures[0].length) else l end
       end.join("\n")
     end
     [docs_blocks, code_blocks]
