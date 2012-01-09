@@ -54,6 +54,7 @@ Gem::Specification.new do |s|
   s.test_files = s.files.select {|path| path =~ /^test\/.*_test.rb/}
   s.add_dependency 'redcarpet', '~> 1.17'
   s.add_dependency 'mustache'
+  s.add_development_dependency 'rake', '~> 0.9'
 
   s.has_rdoc = false
   s.homepage = "http://rtomayko.github.com/rocco/"
