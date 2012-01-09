@@ -32,7 +32,7 @@
 #### Prerequisites
 
 # We'll need a Markdown library. Try to load one if not already established.
- unless defined?(Markdown)
+unless defined?(Markdown)
   markdown_libraries = %w[redcarpet rdiscount bluecloth]
   begin
     require markdown_libraries.shift
