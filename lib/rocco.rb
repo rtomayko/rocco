@@ -84,12 +84,7 @@ class Rocco
     # When `block` is given, it must read the contents of the file using
     # whatever means necessary and return it as a string. With no `block`,
     # the file is read to retrieve data.
-    @data =
-      if block_given?
-        yield
-      else
-        File.read(filename)
-      end
+    @data = if block_given? then yield else File.read(filename) end
 
     defaults = {
       :language      => 'ruby',
