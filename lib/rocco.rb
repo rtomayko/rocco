@@ -81,6 +81,7 @@ require File.join(File.dirname(__FILE__), "rocco", "version")
 # * `:encoding`: specifies the encoding that input files are written in.
 #   _Defaults to `UTF-8`_.
 class Rocco
+  MD_BLUECLOTH = defined?(BlueCloth) && Markdown == BlueCloth
 
   def initialize(filename, sources=[], options={})
     @file       = filename
@@ -456,7 +457,7 @@ class Rocco
 
   # Convert Markdown to classy HTML.
   def process_markdown(text)
-    Markdown.new(text, :smart).to_html
+    if MD_BLUECLOTH then Markdown.new(text).to_html else Markdown.new(text, :smart).to_html end
   end
 
   # We `popen` a read/write pygmentize process in the parent and

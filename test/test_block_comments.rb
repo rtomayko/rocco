@@ -87,7 +87,7 @@ class RoccoBlockCommentTest < Test::Unit::TestCase
       highlighted[0][0]
     )
     assert_equal(
-      "<p>Comment 2</p>\n",
+      fb_assert_val("<p>Comment 2</p>\n"),
       highlighted[1][0]
     )
     assert(
