@@ -29,6 +29,7 @@ Gem::Specification.new do |s|
     lib/rocco/layout.mustache
     lib/rocco/layout.rb
     lib/rocco/tasks.rb
+    lib/rocco/version.rb
     rocco.gemspec
     test/fixtures/issue10.iso-8859-1.rb
     test/fixtures/issue10.utf-8.rb
