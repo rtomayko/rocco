@@ -162,10 +162,16 @@ class Rocco
   # We'll also return `text` if `pygmentize` isn't available.
   #
   # We'll memoize the result, as we'll call this a few times.
+  require 'rocco/comment_styles'
+  include CommentStyles
+  
   def detect_language
+    ext = File.extname(@file).slice(1..-1)
     @_language ||=
       if pygmentize?
         %x[pygmentize -N #{@file}].strip.split('+').first
+      elsif !COMMENT_STYLES[ext].nil?
+        ext
       else
         "text"
       end
@@ -202,9 +208,6 @@ class Rocco
   #
   # At the moment, we're only returning `:single`.  Consider this
   # groundwork for block comment parsing.
-  require 'rocco/comment_styles'
-  include CommentStyles
-
   def generate_comment_chars
     @_commentchar ||=
       if COMMENT_STYLES[@options[:language]]
