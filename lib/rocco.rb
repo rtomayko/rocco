@@ -51,7 +51,8 @@ require 'net/http'
 
 # Code is run through [Pygments](http://pygments.org/) for syntax
 # highlighting. If it's not installed, locally, use a webservice.
-unless ENV['PATH'].split(':').any? { |dir| File.executable?("#{dir}/pygmentize") }
+pygmentize = `which pygmentize`
+if pygmentize.include? "not found" || pygmentize.empty?
   warn "WARNING: Pygments not found. Using webservice."
 end
 
@@ -151,8 +152,8 @@ class Rocco
 
   # Returns `true` if `pygmentize` is available locally, `false` otherwise.
   def pygmentize?
-    @_pygmentize ||= ENV['PATH'].split(':').
-      any? { |dir| File.executable?("#{dir}/pygmentize") }
+    pygmentize = `which pygmentize`
+    @_pygmentize ||= !(pygmentize.include?("not found") || pygmentize.empty?)
   end
 
   # If `pygmentize` is available, we can use it to autodetect a file's
