@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
 
   s.name = 'rocco'
-  s.version = '0.8.2'
-  s.date = '2011-08-27'
+  s.version = '1.0.0'
+  s.date = '2011-01-10'
 
   s.description = "Docco in Ruby"
   s.summary     = s.description
@@ -54,6 +54,7 @@ Gem::Specification.new do |s|
   s.test_files = s.files.select {|path| path =~ /^test\/.*_test.rb/}
   s.add_dependency 'redcarpet', '~> 1.17'
   s.add_dependency 'mustache'
+  s.add_development_dependency 'rake', '~> 0.9'
 
   s.has_rdoc = false
   s.homepage = "http://rtomayko.github.com/rocco/"
