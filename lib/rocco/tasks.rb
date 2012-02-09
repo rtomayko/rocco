@@ -15,7 +15,7 @@
 #
 # It's a good idea to guard against Rocco not being available, since your
 # Rakefile will fail to load otherwise. Consider doing something like this,
-# so that your Rakefile will still work
+# so that your Rakefile will still work:
 #
 #     begin
 #       require 'rocco/tasks'
