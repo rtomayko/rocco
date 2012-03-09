@@ -46,6 +46,11 @@ class Rocco
       },
       "scala"         =>  C_STYLE_COMMENTS,
       "scheme"        =>  { :single => ";;",  :multi => nil, :heredoc => nil },
+      "sql"           =>  {
+        :single => nil,
+        :multi => { :start => '/*', :middle => nil, :end => '*/' },
+        :heredoc => nil
+      },
       "xml"           =>  {
         :single => nil,
         :multi => { :start => '<!--', :middle => nil, :end => '-->' },
