@@ -51,6 +51,11 @@ class Rocco
         :multi => { :start => '<!--', :middle => nil, :end => '-->' },
         :heredoc => nil
       },
+      "haskell"           =>  {
+        :single => "--",
+        :multi => { :start => '{-', :middle => nil, :end => '-}' },
+        :heredoc => nil
+      },
     }
   end
 end
