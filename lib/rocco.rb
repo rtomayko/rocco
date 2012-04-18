@@ -73,7 +73,10 @@ end
 #
 # * `:stylesheet`, which specifies the css stylesheet to use for each
 #   rendered template.  _Defaults to `http://jashkenas.github.com/docco/resources/docco.css`
-#   (the original docco stylesheet)
+#   (the original docco stylesheet)._
+#
+# * `:encoding`: specifies the encoding that input files are written in.
+#   _Defaults to `UTF-8`_.
 class Rocco
   VERSION = '0.8.2'
 
@@ -81,17 +84,18 @@ class Rocco
     @file       = filename
     @sources    = sources
 
-    # When `block` is given, it must read the contents of the file using
-    # whatever means necessary and return it as a string. With no `block`,
-    # the file is read to retrieve data.
-    @data = if block_given? then yield else File.read(filename) end
-
     @options =  {
       :language      => 'ruby',
       :comment_chars => '#',
       :template_file => nil,
-      :stylesheet    => 'http://jashkenas.github.com/docco/resources/docco.css'
+      :stylesheet    => 'http://jashkenas.github.com/docco/resources/docco.css',
+      :encoding => 'UTF-8'
     }.merge(options)
+
+    # When `block` is given, it must read the contents of the file using
+    # whatever means necessary and return it as a string. With no `block`,
+    # the file is read to retrieve data.
+    @data = if block_given? then yield else read_with_encoding(filename) end
 
     # If we detect a language
     if "text" != detect_language
@@ -147,6 +151,20 @@ class Rocco
 
   # Helper Functions
   # ----------------
+
+  # Read *file* encoded `@options[:encoding]` into a string encoded in UTF-8.
+  def read_with_encoding filename
+    # This works differently in Ruby 1.8 and Ruby 1.9, which are
+    # distinguished by checking if `IO#external_encoding` exists.
+    if IO.method_defined?("external_encoding")
+      File.read(filename, :external_encoding => @options[:encoding],
+                :internal_encoding => "UTF-8")
+    else
+      require 'iconv'
+      data = File.read(filename)
+      Iconv.conv("UTF-8", @options[:encoding], data)
+    end
+  end
 
   # Returns `true` if `pygmentize` is available locally, `false` otherwise.
   def pygmentize?
@@ -380,6 +398,7 @@ class Rocco
     # into separate sections.
     markdown = docs_blocks.join("\n\n##### DIVIDER\n\n")
     docs_html = process_markdown(markdown).split(/\n*<h5>DIVIDER<\/h5>\n*/m)
+    docs_html << "" if docs_html.empty?
 
     # Combine all code blocks into a single big stream with section dividers and
     # run through either `pygmentize(1)` or <http://pygments.appspot.com>
