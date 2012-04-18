@@ -51,9 +51,12 @@ require 'net/http'
 
 # Code is run through [Pygments](http://pygments.org/) for syntax
 # highlighting. If it's not installed, locally, use a webservice.
-unless ENV['PATH'].split(':').any? { |dir| File.executable?("#{dir}/pygmentize") }
+pygmentize = `which pygmentize`
+if pygmentize.include? "not found" || pygmentize.empty?
   warn "WARNING: Pygments not found. Using webservice."
 end
+
+require File.join(File.dirname(__FILE__), "rocco", "version")
 
 #### Public Interface
 
@@ -73,25 +76,30 @@ end
 #
 # * `:stylesheet`, which specifies the css stylesheet to use for each
 #   rendered template.  _Defaults to `http://jashkenas.github.com/docco/resources/docco.css`
-#   (the original docco stylesheet)
+#   (the original docco stylesheet)._
+#
+# * `:encoding`: specifies the encoding that input files are written in.
+#   _Defaults to `UTF-8`_.
 class Rocco
-  VERSION = '0.8.2'
+  MD_BLUECLOTH = defined?(BlueCloth) && Markdown == BlueCloth
 
   def initialize(filename, sources=[], options={})
     @file       = filename
     @sources    = sources
 
-    # When `block` is given, it must read the contents of the file using
-    # whatever means necessary and return it as a string. With no `block`,
-    # the file is read to retrieve data.
-    @data = if block_given? then yield else File.read(filename) end
-
-    @options =  {
+    defaults =  {
       :language      => 'ruby',
       :comment_chars => '#',
       :template_file => nil,
-      :stylesheet    => 'http://jashkenas.github.com/docco/resources/docco.css'
-    }.merge(options)
+      :stylesheet    => 'http://jashkenas.github.com/docco/resources/docco.css',
+      :encoding      => 'UTF-8'
+    }
+    @options = defaults.merge(options)
+
+    # When `block` is given, it must read the contents of the file using
+    # whatever means necessary and return it as a string. With no `block`,
+    # the file is read to retrieve data.
+    @data = if block_given? then yield else read_with_encoding(filename) end
 
     # If we detect a language
     if "text" != detect_language
@@ -147,11 +155,24 @@ class Rocco
 
   # Helper Functions
   # ----------------
+  # Read *file* encoded `@options[:encoding]` into a string encoded in UTF-8.
+  def read_with_encoding filename
+    # This works differently in Ruby 1.8 and Ruby 1.9, which are
+    # distinguished by checking if `IO#external_encoding` exists.
+    if IO.method_defined?("external_encoding")
+      File.read(filename, :external_encoding => @options[:encoding],
+                :internal_encoding => "UTF-8")
+    else
+      require 'iconv'
+      data = File.read(filename)
+      Iconv.conv("UTF-8", @options[:encoding], data)
+    end
+  end
 
   # Returns `true` if `pygmentize` is available locally, `false` otherwise.
   def pygmentize?
-    @_pygmentize ||= ENV['PATH'].split(':').
-      any? { |dir| File.executable?("#{dir}/pygmentize") }
+    pygmentize = `which pygmentize`
+    @_pygmentize ||= !(pygmentize.include?("not found") || pygmentize.empty?)
   end
 
   # If `pygmentize` is available, we can use it to autodetect a file's
@@ -160,10 +181,16 @@ class Rocco
   # We'll also return `text` if `pygmentize` isn't available.
   #
   # We'll memoize the result, as we'll call this a few times.
+  require 'rocco/comment_styles'
+  include CommentStyles
+  
   def detect_language
+    ext = File.extname(@file).slice(1..-1)
     @_language ||=
       if pygmentize?
         %x[pygmentize -N #{@file}].strip.split('+').first
+      elsif !COMMENT_STYLES[ext].nil?
+        ext
       else
         "text"
       end
@@ -200,9 +227,6 @@ class Rocco
   #
   # At the moment, we're only returning `:single`.  Consider this
   # groundwork for block comment parsing.
-  require 'rocco/comment_styles'
-  include CommentStyles
-
   def generate_comment_chars
     @_commentchar ||=
       if COMMENT_STYLES[@options[:language]]
@@ -219,8 +243,7 @@ class Rocco
   # form `[docs, code]` where both elements are arrays containing the
   # raw lines parsed from the input file, comment characters stripped.
   def parse(data)
-    sections, docs, code = [], [], []
-    lines = data.split("\n")
+    sections, docs, code, lines = [], [], [], data.split("\n")
 
     # The first line is ignored if it is a shebang line.  We also ignore the
     # PEP 263 encoding information in python sourcefiles, and the similar ruby
@@ -434,7 +457,7 @@ class Rocco
 
   # Convert Markdown to classy HTML.
   def process_markdown(text)
-    Markdown.new(text, :smart).to_html
+    if MD_BLUECLOTH then Markdown.new(text).to_html else Markdown.new(text, :smart).to_html end
   end
 
   # We `popen` a read/write pygmentize process in the parent and

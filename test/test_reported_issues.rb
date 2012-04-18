@@ -23,16 +23,14 @@ class RoccoIssueTests < Test::Unit::TestCase
     # http://github.com/rtomayko/rocco/issues#issue/10
     r = Rocco.new( File.dirname(__FILE__) + "/fixtures/issue10.utf-8.rb" )
     assert_equal(
-      "<p>hello ąćęłńóśźż</p>\n",
+      fb_assert_val("<p>hello ąćęłńóśźż</p>\n"),
       r.sections[0][0],
       "UTF-8 input files ought behave correctly."
     )
     # and, just for grins, ensure that iso-8859-1 works too.
-    # @TODO:    Is this really the correct behavior?  Converting text
-    #           to UTF-8 on the way out is probably preferable.
-    r = Rocco.new( File.dirname(__FILE__) + "/fixtures/issue10.iso-8859-1.rb" )
+    r = Rocco.new( File.dirname(__FILE__) + "/fixtures/issue10.iso-8859-1.rb", [], :encoding => 'ISO-8859-1' )
     assert_equal(
-      "<p>hello w\366rld</p>\n",
+      fb_assert_val("<p>hello wörld</p>\n"),
       r.sections[0][0],
       "ISO-8859-1 input should probably also behave correctly."
     )
@@ -81,6 +79,6 @@ class RoccoIssueTests < Test::Unit::TestCase
       !r.sections[0][0].include?( "<hr />" ),
       "`<hr />` present in rendered documentation text.  It should be a header, not text followed by a horizontal rule."
     )
-    assert_equal("<h2>Comment 1</h2>\n", r.sections[0][0])
+    assert_equal(fb_assert_val("<h2>Comment 1</h2>\n"), r.sections[0][0])
   end
 end

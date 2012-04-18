@@ -18,3 +18,8 @@ def roccoize( filename, contents, options = {} )
     contents
   }
 end
+
+def fb_assert_val( str ) 
+  return str.strip if Rocco::MD_BLUECLOTH
+  str
+end

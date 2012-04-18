@@ -39,7 +39,7 @@ class RoccoSkippableLines < Test::Unit::TestCase
   end
 
   def test_encoding_in_python
-    r = Rocco.new( 'filename.py' ) { "" }
+    r = Rocco.new( 'filename.py', [], {:language => "python"} ) { "" }
     assert_equal(
       [
         [ [ "Comment 1" ], [ "def codeblock" ] ],
