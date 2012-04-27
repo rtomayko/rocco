@@ -32,15 +32,22 @@
 #### Prerequisites
 
 # We'll need a Markdown library. Try to load one if not already established.
-unless defined?(Markdown)
-  markdown_libraries = %w[redcarpet rdiscount bluecloth]
-  begin
-    require markdown_libraries.shift
-  rescue LoadError => boom
-    retry if markdown_libraries.any?
-    raise
+def gem_available?(name)
+  Gem::Specification.find_by_name(name)
+rescue Gem::LoadError
+  false
+rescue
+  Gem.available?(name)
+end
+markdown_libraries=%w[redcarpet rdiscount bluecloth]
+for l in markdown_libraries do
+  if gem_available?(l)
+    require l && @@markdown_processor = l
+    markdown_libraries.shift
+    break
   end
 end
+raise LoadError if !@@markdown_processor
 
 # We use [{{ mustache }}](http://defunkt.github.com/mustache/) for
 # HTML templating.
@@ -100,14 +107,14 @@ class Rocco
       @options[:language] = detect_language
       @options[:comment_chars] = generate_comment_chars
 
-    # If we didn't detect a language, but the user provided one, use it
-    # to look around for comment characters to override the default.
+      # If we didn't detect a language, but the user provided one, use it
+      # to look around for comment characters to override the default.
     elsif @options[:language]
       @options[:comment_chars] = generate_comment_chars
 
-    # If neither is true, then convert the default comment character string
-    # into the comment_char syntax (we'll discuss that syntax in detail when
-    # we get to `generate_comment_chars()` in a moment.
+      # If neither is true, then convert the default comment character string
+      # into the comment_char syntax (we'll discuss that syntax in detail when
+      # we get to `generate_comment_chars()` in a moment.
     else
       @options[:comment_chars] = { :single => @options[:comment_chars], :multi => nil }
     end
@@ -151,7 +158,7 @@ class Rocco
   # Returns `true` if `pygmentize` is available locally, `false` otherwise.
   def pygmentize?
     @_pygmentize ||= ENV['PATH'].split(':').
-      any? { |dir| File.executable?("#{dir}/pygmentize") }
+    any? { |dir| File.executable?("#{dir}/pygmentize") }
   end
 
   # If `pygmentize` is available, we can use it to autodetect a file's
@@ -162,11 +169,11 @@ class Rocco
   # We'll memoize the result, as we'll call this a few times.
   def detect_language
     @_language ||=
-      if pygmentize?
-        %x[pygmentize -N #{@file}].strip.split('+').first
-      else
-        "text"
-      end
+    if pygmentize?
+      %x[pygmentize -N #{@file}].strip.split('+').first
+    else
+      "text"
+    end
   end
 
   # Given a file's language, we should be able to autopopulate the
@@ -205,11 +212,11 @@ class Rocco
 
   def generate_comment_chars
     @_commentchar ||=
-      if COMMENT_STYLES[@options[:language]]
-        COMMENT_STYLES[@options[:language]]
-      else
-        { :single => @options[:comment_chars], :multi => nil, :heredoc => nil }
-      end
+    if COMMENT_STYLES[@options[:language]]
+      COMMENT_STYLES[@options[:language]]
+    else
+      { :single => @options[:comment_chars], :multi => nil, :heredoc => nil }
+    end
   end
 
   # Internal Parsing and Highlighting
@@ -227,7 +234,7 @@ class Rocco
     # 1.9 syntax.
     lines.shift if lines[0] =~ /^\#\!/
     lines.shift if lines[0] =~ /coding[:=]\s*[-\w.]+/ &&
-                   [ "python", "rb" ].include?(@options[:language])
+    [ "python", "rb" ].include?(@options[:language])
 
     # To detect both block comments and single-line comments, we'll set
     # up a tiny state machine, and loop through each line of the file.
@@ -236,7 +243,7 @@ class Rocco
     in_comment_block = false
     in_heredoc = false
     single_line_comment, block_comment_start, block_comment_mid, block_comment_end =
-      nil, nil, nil, nil
+    nil, nil, nil, nil
     if not @options[:comment_chars][:single].nil?
       single_line_comment = Regexp.new("^\\s*#{Regexp.escape(@options[:comment_chars][:single])}\\s?")
     end
@@ -263,21 +270,21 @@ class Rocco
         elsif block_comment_end_with && line.match(block_comment_end_with)
           in_comment_block = false
           docs << line.match(block_comment_end_with).captures.first.
-                        sub(block_comment_mid || '', '')
+          sub(block_comment_mid || '', '')
         else
           docs << line.sub(block_comment_mid || '', '')
         end
-      # If we're currently in a heredoc, we're looking for the end of the
-      # heredoc, and everything it contains is code.
+        # If we're currently in a heredoc, we're looking for the end of the
+        # heredoc, and everything it contains is code.
       elsif in_heredoc
         if line.match(Regexp.new("^#{Regexp.escape(in_heredoc)}$"))
           in_heredoc = false
         end
         code << line
-      # Otherwise, check whether the line starts a heredoc. If so, note the end
-      # pattern, and the line is code.  Otherwise check whether the line matches
-      # the beginning of a block, or a single-line comment all on it's lonesome.
-      # In either case, if there's code, start a new section.
+        # Otherwise, check whether the line starts a heredoc. If so, note the end
+        # pattern, and the line is code.  Otherwise check whether the line matches
+        # the beginning of a block, or a single-line comment all on it's lonesome.
+        # In either case, if there's code, start a new section.
       else
         if heredoc_start && line.match(heredoc_start)
           in_heredoc = $1
@@ -335,7 +342,7 @@ class Rocco
         leading_space = section[0][0].match("^\s+")
         if leading_space
           section[0] =
-            section[0].map{ |line| line.sub(/^#{leading_space.to_s}/, '') }
+          section[0].map{ |line| line.sub(/^#{leading_space.to_s}/, '') }
         end
       end
       section
@@ -415,18 +422,18 @@ class Rocco
     code_stream = code_blocks.join(divider_input)
 
     code_html =
-      if pygmentize?
-        highlight_pygmentize(code_stream)
-      else
-        highlight_webservice(code_stream)
-      end
+    if pygmentize?
+      highlight_pygmentize(code_stream)
+    else
+      highlight_webservice(code_stream)
+    end
 
     # Do some post-processing on the pygments output to split things back
     # into sections and remove partial `<pre>` blocks.
     code_html = code_html.
-      split(divider_output).
-      map { |code| code.sub(/\n?<div class="highlight"><pre>/m, '') }.
-      map { |code| code.sub(/\n?<\/pre><\/div>\n/m, '') }
+    split(divider_output).
+    map { |code| code.sub(/\n?<div class="highlight"><pre>/m, '') }.
+    map { |code| code.sub(/\n?<\/pre><\/div>\n/m, '') }
 
     # Lastly, combine the docs and code lists back into a list of two-tuples.
     docs_html.zip(code_html)
@@ -434,7 +441,14 @@ class Rocco
 
   # Convert Markdown to classy HTML.
   def process_markdown(text)
-    Markdown.new(text, :smart).to_html
+    if defined? Redcarpet
+      Redcarpet::Markdown.new(Redcarpet::Render::HTML,
+      :autolink => true, :smarypants => true).render(text)
+    elsif defined? RDiscount
+      RDiscount.new(text, :smart).to_html
+    elsif defined? BlueCloth
+      BlueCloth.new(text, :smartypants => true).to_html
+    end
   end
 
   # We `popen` a read/write pygmentize process in the parent and
@@ -443,12 +457,12 @@ class Rocco
     code_html = nil
     open("|pygmentize -l #{@options[:language]} -O encoding=utf-8 -f html", 'r+') do |fd|
       pid =
-        fork {
-          fd.close_read
-          fd.write code
-          fd.close_write
-          exit!
-        }
+      fork {
+        fd.close_read
+        fd.write code
+        fd.close_write
+        exit!
+      }
       fd.close_write
       code_html = fd.read
       fd.close_read
