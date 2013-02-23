@@ -33,6 +33,38 @@
 
 # We'll need a Markdown library. Try to load one if not already established.
 unless defined?(Markdown)
+  begin
+    require 'redcarpet'
+
+    class Markdown
+      @@markdown = Redcarpet::Markdown.new(Redcarpet::Render::SmartyHTML, :fenced_code_blocks => true)
+
+      def initialize(text, *rest)
+        @text = text
+      end
+
+      def to_html
+        @@markdown.render(@text)
+      end
+    end
+  rescue LoadError, NameError
+  end
+end
+
+unless defined?(Markdown)
+  begin
+    require 'kramdown'
+
+    class Markdown < Kramdown::Document
+      def initialize(text, *rest)
+        super text, :auto_ids => false
+      end
+    end
+  rescue LoadError
+  end
+end
+
+unless defined?(Markdown)
   markdown_libraries = %w[redcarpet rdiscount bluecloth]
   begin
     require markdown_libraries.shift

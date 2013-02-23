@@ -10,7 +10,7 @@
 #/   -t, --template=<path>  The file to use as template when rendering HTML
 #/   -d, --docblocks        Parse Docblock @annotations in comments
 #/       --help             Show this help message
-
+require 'rubygems'
 require 'optparse'
 require 'fileutils'
 require 'rocco'
