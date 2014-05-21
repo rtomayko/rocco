@@ -23,20 +23,20 @@ class RoccoBasicTests < Test::Unit::TestCase
     assert_equal "<span class=\"k\">def</span> <span class=\"nf\">codeblock</span>\n<span class=\"k\">end</span>", r.sections[ 0 ][ 1 ]
   end
 
-  def test_parsing
-    r = Rocco.new( 'test' ) { "" } # Generate throwaway instance so I can test `parse`
+  def test_segmenting
+    cs = Rocco::CodeSegmenter.new # Generate throwaway instance so I can test `segment`
     assert_equal(
       [
         [ [ "Comment 1" ], [ "def codeblock", "end" ] ]
       ],
-      r.parse( "# Comment 1\ndef codeblock\nend\n" )
+      cs.segment( "# Comment 1\ndef codeblock\nend\n" )
     )
     assert_equal(
       [
         [ [ "Comment 1" ], [ "def codeblock" ] ],
         [ [ "Comment 2" ], [ "end" ] ]
       ],
-      r.parse( "# Comment 1\ndef codeblock\n# Comment 2\nend\n" )
+      cs.segment( "# Comment 1\ndef codeblock\n# Comment 2\nend\n" )
     )
   end
 

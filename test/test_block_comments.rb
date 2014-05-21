@@ -2,70 +2,70 @@ require File.expand_path('../helper', __FILE__)
 
 class RoccoBlockCommentTest < Test::Unit::TestCase
   def test_basics
-    r = Rocco.new( 'test', '', { :language => "c" } ) { "" } # Generate throwaway instance so I can test `parse`
+    cs = Rocco::CodeSegmenter.new( :language => "c" )
     assert_equal(
       [
         [ [ "Comment 1" ], [ "def codeblock", "end" ] ]
       ],
-      r.parse( "/**\n * Comment 1\n */\ndef codeblock\nend\n" )
+      cs.segment( "/**\n * Comment 1\n */\ndef codeblock\nend\n" )
     )
     assert_equal(
       [
         [ [ "Comment 1a", "Comment 1b" ], [ "def codeblock", "end" ] ]
       ],
-      r.parse( "/**\n * Comment 1a\n * Comment 1b\n */\ndef codeblock\nend\n" )
+      cs.segment( "/**\n * Comment 1a\n * Comment 1b\n */\ndef codeblock\nend\n" )
     )
   end
 
   def test_multiple_blocks
-    r = Rocco.new( 'test', '', { :language => "c" } ) { "" } # Generate throwaway instance so I can test `parse`
+    cs = Rocco::CodeSegmenter.new( :language => "c" )
     assert_equal(
       [
         [ [ "Comment 1" ], [ "def codeblock", "end" ] ],
         [ [ "Comment 2" ], [] ]
       ],
-      r.parse( "/**\n * Comment 1\n */\ndef codeblock\nend\n/**\n * Comment 2\n */\n" )
+      cs.segment( "/**\n * Comment 1\n */\ndef codeblock\nend\n/**\n * Comment 2\n */\n" )
     )
     assert_equal(
       [
         [ [ "Comment 1" ], [ "def codeblock", "end" ] ],
         [ [ "Comment 2" ], [ "if false", "end" ] ]
       ],
-      r.parse( "/**\n * Comment 1\n */\ndef codeblock\nend\n/**\n * Comment 2\n */\nif false\nend" )
+      cs.segment( "/**\n * Comment 1\n */\ndef codeblock\nend\n/**\n * Comment 2\n */\nif false\nend" )
     )
   end
 
   def test_block_without_middle_character
-    r = Rocco.new( 'test', '', { :language => "python" } ) { "" } # Generate throwaway instance so I can test `parse`
+    cs = Rocco::CodeSegmenter.new( :language => "python" )
     assert_equal(
       [
         [ [ "Comment 1" ], [ "def codeblock", "end" ] ],
         [ [ "Comment 2" ], [] ]
       ],
-      r.parse( "\"\"\"\n  Comment 1\n\"\"\"\ndef codeblock\nend\n\"\"\"\n  Comment 2\n\"\"\"\n" )
+      cs.segment( "\"\"\"\n  Comment 1\n\"\"\"\ndef codeblock\nend\n\"\"\"\n  Comment 2\n\"\"\"\n" )
     )
     assert_equal(
       [
         [ [ "Comment 1" ], [ "def codeblock", "end" ] ],
         [ [ "Comment 2" ], [ "if false", "end" ] ]
       ],
-      r.parse( "\"\"\"\n  Comment 1\n\"\"\"\ndef codeblock\nend\n\"\"\"\n  Comment 2\n\"\"\"\nif false\nend" )
+      cs.segment( "\"\"\"\n  Comment 1\n\"\"\"\ndef codeblock\nend\n\"\"\"\n  Comment 2\n\"\"\"\nif false\nend" )
     )
   end
 
   def test_language_without_single_line_comments_parse
-    r = Rocco.new( 'test', '', { :language => "css" } ) { "" } # Generate throwaway instance so I can test `parse`
+    cs = Rocco::CodeSegmenter.new( :language => "css" )
     assert_equal(
       [
         [ [ "Comment 1" ], [ "def codeblock", "end" ] ],
         [ [ "Comment 2" ], [ "if false", "end" ] ]
       ],
-      r.parse( "/**\n * Comment 1\n */\ndef codeblock\nend\n/**\n * Comment 2\n */\nif false\nend" )
+      cs.segment( "/**\n * Comment 1\n */\ndef codeblock\nend\n/**\n * Comment 2\n */\nif false\nend" )
     )
   end
 
   def test_language_without_single_line_comments_split
-    r = Rocco.new( 'test', '', { :language => "css" } ) { "" } # Generate throwaway instance so I can test `parse`
+    r = Rocco.new( 'test', '', { :language => "css" } ) { "" } # Generate throwaway instance so I can test `split`
     assert_equal(
       [
         [ "Comment 1", "Comment 2" ],
@@ -79,9 +79,10 @@ class RoccoBlockCommentTest < Test::Unit::TestCase
   end
 
   def test_language_without_single_line_comments_highlight
-    r = Rocco.new( 'test', '', { :language => "css" } ) { "" } # Generate throwaway instance so I can test `parse`
+    cs = Rocco::CodeSegmenter.new( :language => "css" )
+    r = Rocco.new( 'test', '', { :language => "css" } ) { "" } # Generate throwaway instance so I can test `highlight`
 
-    highlighted = r.highlight( r.split( r.parse( "/**\n * This is a comment!\n */\n.rule { goes: here; }\n/**\n * Comment 2\n */\n.rule2 { goes: here; }" ) ) )
+    highlighted = r.highlight( r.split( cs.segment( "/**\n * This is a comment!\n */\n.rule { goes: here; }\n/**\n * Comment 2\n */\n.rule2 { goes: here; }" ) ) )
     assert_equal(
       "<p>This is a comment!</p>",
       highlighted[0][0]
