@@ -13,7 +13,7 @@ class RoccoLanguageDetection < Test::Unit::TestCase
     r = Rocco.new( 'filename.an_extension_with_no_meaning_whatsoever' ) { "" }
     if r.pygmentize?
       assert_equal "text", r.detect_language(), "`detect_language()` should return `text` when nothing else is detected"
-      assert_equal "ruby", r.options[:language], "`@options[:language]` should be set to `ruby` when nothing else is detected"
+      assert_equal "rb", r.options[:language], "`@options[:language]` should be set to `rb` when nothing else is detected"
     end
   end
 

@@ -5,7 +5,7 @@ class Rocco
     include CommentStyles
 
     DEFAULT_OPTIONS = {
-      :language      => 'ruby',
+      :language      => 'rb',
       :comment_chars => '#'
     }
 

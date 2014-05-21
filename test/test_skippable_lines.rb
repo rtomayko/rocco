@@ -43,7 +43,7 @@ class RoccoSkippableLines < Test::Unit::TestCase
 
   def test_encoding_in_python
     # CodeSegmenter doesn't currently handle the filename
-    cs = Rocco::CodeSegmenter.new # ( 'filename.py' )
+    cs = Rocco::CodeSegmenter.new( :language => 'python' ) # ( 'filename.py' )
     assert_equal(
       [
         [ [ "Comment 1" ], [ "def codeblock" ] ],
@@ -56,7 +56,7 @@ class RoccoSkippableLines < Test::Unit::TestCase
 
   def test_encoding_in_notpython
     # CodeSegmenter doesn't currently handle the filename
-    cs = Rocco::CodeSegmenter.new # ( 'filename.sh' )
+    cs = Rocco::CodeSegmenter.new( :language => 'bash' ) # ( 'filename.sh' )
     assert_equal(
       [
         [ [ "encoding: utf-8", "Comment 1" ], [ "def codeblock" ] ],
