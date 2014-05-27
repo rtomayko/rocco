@@ -17,6 +17,8 @@ Gem::Specification.new do |s|
   s.authors = ["Ryan Tomayko", "Mike West"]
   s.email   = ["r@tomayko.com", "<mike@mikewest.org>"]
 
+  s.licenses = ['MIT']
+
   # = MANIFEST =
   s.files = %w[
     CHANGES.md
