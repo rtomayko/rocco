@@ -33,6 +33,7 @@ class Rocco
         :multi => nil,
         :heredoc => nil
       },
+      "objective-c"   =>  C_STYLE_COMMENTS,
       "php" => C_STYLE_COMMENTS,
       "python"        =>  {
         :single => "#",
