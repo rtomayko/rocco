@@ -8,6 +8,14 @@ class RoccoLanguageDetection < Test::Unit::TestCase
       assert_equal "python", r.options[:language], "`@options[:language]` should be set to the correct language"
     end
   end
+  
+  def test_sql_detection
+    r = Rocco.new( 'filename.sql' ) { "" }
+    if r.pygmentize?
+      assert_equal "sql", r.detect_language(), "`detect_language()` should return the correct language"
+      assert_equal "sql", r.options[:language], "`@options[:language]` should be set to the correct language"
+    end
+  end
 
   def test_fallback_default
     r = Rocco.new( 'filename.an_extension_with_no_meaning_whatsoever' ) { "" }
