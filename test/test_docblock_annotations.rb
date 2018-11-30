@@ -11,8 +11,9 @@ class RoccoDocblockAnnotationsTest < Test::Unit::TestCase
     )
   end
   def test_highlighted_in_blocks
+    cs = Rocco::CodeSegmenter.new( :language => "c" )
     r = Rocco.new( 'test', '', { :language => "c", :docblocks => true } ) { "" } # Generate throwaway instance so I can test `parse`
-    highlighted = r.highlight( r.split( r.parse( "/**\n * Comment\n * @param type name\n */\ndef codeblock\nend\n" ) ) )
+    highlighted = r.highlight( r.split( cs.segment( "/**\n * Comment\n * @param type name\n */\ndef codeblock\nend\n" ) ) )
 
     assert_equal(
       "<p>Comment</p>\n\n<blockquote><p><strong>param</strong> type name</p></blockquote>\n",
