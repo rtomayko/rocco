@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.name = 'rocco'
   s.version = '0.8.2'
-  s.date = '2011-08-27'
+  s.date = '2013-01-23'
 
   s.description = "Docco in Ruby"
   s.summary     = s.description
@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
   s.files = %w[
     CHANGES.md
     COPYING
+    Gemfile
     README
     Rakefile
     bin/rocco
@@ -48,13 +49,14 @@ Gem::Specification.new do |s|
     test/test_reported_issues.rb
     test/test_skippable_lines.rb
     test/test_source_list.rb
+    test/test_stylesheet.rb
   ]
   # = MANIFEST =
 
   s.executables = ["rocco"]
 
   s.test_files = s.files.select {|path| path =~ /^test\/.*_test.rb/}
-  s.add_dependency 'redcarpet', '~> 1.17'
+  s.add_dependency 'redcarpet'
   s.add_dependency 'mustache'
 
   s.has_rdoc = false
