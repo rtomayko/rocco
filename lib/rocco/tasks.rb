@@ -15,7 +15,7 @@
 #
 # It's a good idea to guard against Rocco not being available, since your
 # Rakefile will fail to load otherwise. Consider doing something like this,
-# so that your Rakefile will still work
+# so that your Rakefile will still work:
 #
 #     begin
 #       require 'rocco/tasks'
@@ -37,10 +37,10 @@
 # like to use to highlight the code, as well as the comment characters for the
 # language in the `options` hash:
 #
-#    Rocco::make 'html/', 'lib/thing/**/*.rb', {
-#      :language => 'io',
-#      :comment_chars => '#'
-#    }
+#     Rocco::make 'html/', 'lib/thing/**/*.rb', {
+#       :language => 'io',
+#       :comment_chars => '#'
+#     }
 #
 
 # Might be nice to defer this until we actually need to build docs but this
