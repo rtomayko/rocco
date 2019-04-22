@@ -204,12 +204,9 @@ class Rocco
   include CommentStyles
 
   def generate_comment_chars
+    comment_hash = { :single => @options[:comment_chars], :multi => nil, :heredoc => nil }
     @_commentchar ||=
-      if COMMENT_STYLES[@options[:language]]
-        COMMENT_STYLES[@options[:language]]
-      else
-        { :single => @options[:comment_chars], :multi => nil, :heredoc => nil }
-      end
+      COMMENT_STYLES[@options[:language]] or comment_hash
   end
 
   # Internal Parsing and Highlighting
@@ -331,12 +328,9 @@ class Rocco
   # `def func():\n  print "omg!"`
   def normalize_leading_spaces(sections)
     sections.map do |section|
-      if section.any? && section[0].any?
-        leading_space = section[0][0].match("^\s+")
-        if leading_space
-          section[0] =
-            section[0].map{ |line| line.sub(/^#{leading_space.to_s}/, '') }
-        end
+      if section.any? && section.first.any?
+        leading_space = section.first.first.match("^\s+")
+        section[0] = section.first.map{ |l| l.sub(/^#{leading_space}/, '') } if leading_space
       end
       section
     end
@@ -349,9 +343,9 @@ class Rocco
     docs_blocks, code_blocks = [], []
     sections.each do |docs,code|
       docs_blocks << docs.join("\n")
-      code_blocks << code.map do |line|
-        tabs = line.match(/^(\t+)/)
-        tabs ? line.sub(/^\t+/, '  ' * tabs.captures[0].length) : line
+      code_blocks << code.map do |l|
+        tabs = l.match /^(\t+)/
+        if tabs then l.sub(/^\t+/, '  ' * tabs.captures[0].length) else l end
       end.join("\n")
     end
     [docs_blocks, code_blocks]
@@ -361,9 +355,9 @@ class Rocco
   # Markdown syntax.
   def docblock(docs)
     docs.map do |doc|
-      doc.split("\n").map do |line|
-        line.match(/^@\w+/) ? line.sub(/^@(\w+)\s+/, '> **\1** ')+"  " : line
-      end.join("\n")
+      doc.split("\n").map do |l|
+        if l.match(/^@\w+/) then l.sub(/^@(\w+)\s+/, '> **\1** ') + "  " else l end
+      end.join "\n"
     end
   end
 
