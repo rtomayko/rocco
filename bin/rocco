@@ -3,13 +3,13 @@
 #/ Generate literate-programming-style documentation for Ruby source <file>s.
 #/
 #/ Options:
-#/   -l, --language=<lang>  The Pygments lexer to use to highlight code
-#/   -c, --comment-chars=<chars>
-#/                          The string to recognize as a comment marker
-#/   -o, --output=<dir>     Directory where generated HTML files are written
-#/   -t, --template=<path>  The file to use as template when rendering HTML
-#/   -d, --docblocks        Parse Docblock @annotations in comments
-#/       --help             Show this help message
+#/   -o, --output=<dir>             Directory where generated HTML files are written
+#/   -l, --language=<lang>          The Pygments lexer to use to highlight code
+#/   -c, --comment-chars=<chars>    The string to recognize as a comment marker
+#/   -t, --template=<path>          The file to use as template when rendering HTML
+#/   -d, --docblocks                Parse Docblock @annotations in comments
+#/   -s, --stylesheet=<stylesheet>  The stylesheet to style the document
+#/   -h, --help                     Show this help message
 
 require 'optparse'
 require 'fileutils'
