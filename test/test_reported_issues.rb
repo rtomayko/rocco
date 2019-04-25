@@ -83,4 +83,22 @@ class RoccoIssueTests < Test::Unit::TestCase
     )
     assert_equal("<h2>Comment 1</h2>\n", r.sections[0][0])
   end
+
+  def test_issue93_markdown_bullets_squashed
+    # A 'C-style' multi-line comment with a Markdown bulleted list is not turned into a <ul>
+    # http://github.com/rtomayko/rocco/issues/93
+
+    r = Rocco.new( File.dirname(__FILE__) + "/fixtures/issue93.js" )
+    html = r.to_html
+
+    puts html
+    assert(
+      html.match(/<ul>\s*<li>is a bullet 1<\/li>/),
+      "Unordered lists in C-style single-line comments should turn into <ul>"
+    )
+    assert(
+      html.match(/<ul>\s*<li>should be a bullet 1<\/li>/),
+      "Unordered lists in C-style multi-line comments should turn into <ul>"
+    )
+  end
 end
